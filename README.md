@@ -6,7 +6,7 @@ A planning and invoicing app built with React + Vite.
 
 1. Copy `.env.example` to `.env` and fill in your Supabase project URL and publishable key
    (Supabase dashboard → Project Settings → API). `.env` is git-ignored.
-2. In the Supabase SQL Editor, run `supabase/migrations/0001_initial_schema.sql` once.
+2. In the Supabase SQL Editor, run each file in `supabase/migrations/` once, in numbered order.
 3. Run the app:
 
 ```bash

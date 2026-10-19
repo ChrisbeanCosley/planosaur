@@ -135,21 +135,17 @@ export const setTaskDone = async (id, done) => check(await supabase.from('tasks'
 export const insertEvent = async (event) => check(await supabase.from('events').insert(eventToRow(event)));
 
 // ---------- Invoices ----------
-// Finds the client by name, creating it the first time it's used.
-async function ensureClient(name) {
-  return check(
-    await supabase.from('clients').upsert({ name }, { onConflict: 'user_id,name' }).select('id, name').single(),
-  );
-}
-
-// Saves the invoice and replaces its line items. Returns the client row.
-// TODO: move into a Postgres function so the three steps run in one transaction.
+// Saves the invoice, its client and its line items in one transaction via the
+// save_invoice database function (supabase/migrations/0002). Returns { id, name } of the client.
 export async function saveInvoice(invoice) {
-  const client = await ensureClient(invoice.client);
-  check(await supabase.from('invoices').upsert(invoiceToRow(invoice, client.id)));
-  check(await supabase.from('invoice_items').delete().eq('invoice_id', invoice.id));
-  if (invoice.items.length) check(await supabase.from('invoice_items').insert(itemsToRows(invoice)));
-  return client;
+  // client_id is left out: the function looks the client up (or creates it) from the name.
+  const { client_id: _unused, ...row } = invoiceToRow(invoice, null);
+  return check(
+    await supabase.rpc('save_invoice', {
+      p_invoice: { ...row, client: invoice.client },
+      p_items: itemsToRows(invoice),
+    }),
+  );
 }
 
 export async function updateInvoices(ids, patch) {
