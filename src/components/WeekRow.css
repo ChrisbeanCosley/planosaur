@@ -1,0 +1,62 @@
+.week-row {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  column-gap: 26px;
+}
+
+.week-day {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 0 0 24px;
+}
+
+.week-day__label {
+  padding-bottom: 42px;
+  border-bottom: 2px solid #c9c4ca;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.6px;
+  color: var(--text);
+}
+
+.week-day__number {
+  margin: 14px 0 18px;
+  font-size: 32px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.week-day__events {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.week-day__more {
+  align-self: flex-start;
+  margin-left: 20px;
+}
+
+/* Today gets a tinted column and an accent line, like the designs */
+.week-day--today {
+  margin: 0 -10px;
+  padding: 0 10px 24px;
+  background: linear-gradient(180deg, transparent 0, transparent 60px, var(--highlight) 60px);
+}
+
+.week-day--today .week-day__label {
+  color: #b5338e;
+  border-bottom: 3px solid #b5338e;
+}
+
+@media (max-width: 1100px) {
+  .week-row {
+    column-gap: 12px;
+  }
+
+  .event-card {
+    padding: 10px;
+    font-size: 13px;
+  }
+}

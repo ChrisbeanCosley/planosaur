@@ -1,0 +1,30 @@
+.calendar__toolbar {
+  margin: 56px 0 44px;
+}
+
+.calendar__nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.calendar__nav h2 {
+  margin-right: 30px;
+  font-size: 32px;
+  font-weight: 500;
+}
+
+.calendar__today {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--text);
+}
+
+.calendar__weeks {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}

@@ -1,0 +1,18 @@
+.event-card {
+  padding: 16px 18px;
+  border-radius: 16px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: 0.3px;
+  box-shadow: var(--shadow-sm);
+  overflow-wrap: anywhere;
+}
+
+.event-card__person {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}

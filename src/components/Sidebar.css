@@ -1,0 +1,127 @@
+.sidebar {
+  position: sticky;
+  top: 0;
+  flex-shrink: 0;
+  width: var(--sidebar-width);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 58px 22px 28px;
+  color: #fff;
+  background: linear-gradient(180deg, #e0609d 0%, #b26dc6 55%, #8a7bea 100%);
+  box-shadow: 8px 0 24px rgba(90, 40, 110, 0.18);
+  z-index: 2;
+}
+
+.sidebar__avatar {
+  display: grid;
+  place-items: center;
+  width: 148px;
+  height: 148px;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 255, 255, 0.85);
+  background: linear-gradient(135deg, #fbd3e7, #d9cffb);
+  color: var(--primary);
+  font-size: 46px;
+  font-weight: 600;
+  box-shadow: 0 8px 20px rgba(80, 20, 90, 0.25);
+}
+
+.sidebar__name {
+  margin: 34px 0 34px;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 52px;
+  padding: 0 0 0 56px;
+  border-radius: 16px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.4px;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.sidebar__link:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.sidebar__link--active,
+.sidebar__link--active:hover {
+  background: #8e4498;
+  box-shadow: 0 6px 14px rgba(70, 20, 80, 0.3);
+}
+
+.sidebar__divider {
+  width: calc(100% + 28px);
+  margin: 40px 0 0;
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.sidebar__footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.sidebar__logo {
+  width: 34px;
+  height: auto;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+/* Collapse to an icon rail on smaller screens */
+@media (max-width: 1100px) {
+  .sidebar {
+    width: 88px;
+    padding: 28px 12px;
+  }
+
+  .sidebar__avatar {
+    width: 56px;
+    height: 56px;
+    font-size: 18px;
+    border-width: 2px;
+  }
+
+  .sidebar__name,
+  .sidebar__link span,
+  .sidebar__footer span {
+    display: none;
+  }
+
+  .sidebar__name {
+    margin: 0;
+  }
+
+  .sidebar__nav {
+    margin-top: 28px;
+  }
+
+  .sidebar__link {
+    justify-content: center;
+    padding: 0;
+  }
+
+  .sidebar__divider {
+    width: 100%;
+  }
+}

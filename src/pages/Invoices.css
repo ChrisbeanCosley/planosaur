@@ -1,0 +1,154 @@
+.invoices__toolbar {
+  margin: 46px 0 30px;
+}
+
+.invoices__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 32px;
+  padding-left: 20px;
+}
+
+.invoices__tabs button {
+  padding: 4px 0;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  color: var(--text);
+}
+
+.invoices__tabs button.is-active {
+  color: #b5338e;
+  border-bottom-color: #b5338e;
+}
+
+.invoices__stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px 40px;
+  padding: 22px 80px 18px 20px;
+  border-radius: var(--radius);
+  background: #f8e4f8;
+}
+
+.invoices__stats div {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.invoices__stats span {
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.invoices__stats strong {
+  font-size: 20px;
+  font-weight: 500;
+  color: #b5338e;
+}
+
+.invoices__manage {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 28px 0 24px 20px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.popover--left {
+  left: 0;
+  right: auto;
+}
+
+.invoices__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 16px;
+}
+
+.invoices__table th {
+  padding: 0 12px 40px;
+  text-align: left;
+  font-weight: 400;
+  color: var(--muted);
+  letter-spacing: 0.4px;
+}
+
+.invoices__table td {
+  padding: 30px 12px;
+  border-bottom: 1px solid var(--line);
+  font-weight: 500;
+  letter-spacing: 0.4px;
+}
+
+.invoices__table th:first-child,
+.invoices__table td:first-child {
+  width: 70px;
+  padding-left: 24px;
+}
+
+.invoices__table tbody tr {
+  cursor: pointer;
+  transition: background 0.1s ease;
+}
+
+.invoices__table tbody tr:hover {
+  background: rgba(248, 228, 248, 0.5);
+}
+
+.round-check {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  border: 1.5px solid #6b6b6b;
+  border-radius: 50%;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.round-check:checked {
+  border-color: var(--primary);
+  background: radial-gradient(circle, var(--primary) 0 5px, transparent 5.5px);
+}
+
+.status {
+  font-weight: 500;
+}
+
+.status--paid {
+  color: var(--green);
+}
+
+.status--unpaid,
+.status--overdue {
+  color: var(--danger);
+}
+
+.status--pending {
+  color: #f5a623;
+}
+
+.status--due {
+  color: #b5338e;
+}
+
+.status--draft {
+  color: var(--text);
+}
+
+@media (max-width: 1100px) {
+  .invoices__table th,
+  .invoices__table td {
+    padding-left: 6px;
+    padding-right: 6px;
+    font-size: 14px;
+  }
+}

@@ -1,0 +1,94 @@
+.task-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 24px 24px 24px 28px;
+  border-radius: var(--radius);
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+
+.task-card__bar {
+  align-self: stretch;
+  flex-shrink: 0;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.task-card__check {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  transition: transform 0.15s ease;
+}
+
+.task-card__check:hover {
+  transform: scale(1.06);
+}
+
+.task-card__body {
+  min-width: 0;
+}
+
+.task-card__title {
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.task-card__description {
+  margin-top: 8px;
+  font-size: 15px;
+  color: #8a8a8a;
+  letter-spacing: 0.3px;
+}
+
+.task-card__time {
+  margin-top: 14px;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--accent);
+}
+
+.task-card--done {
+  background: var(--done-bg);
+}
+
+.task-card--done .task-card__check {
+  color: #fff;
+}
+
+.task-card--overdue {
+  background: var(--danger-soft);
+}
+
+/* Compact variant for the dashboard's "Today's Tasks" panel */
+.task-card--compact {
+  padding: 18px 20px 18px 24px;
+}
+
+.task-card--compact .task-card__title {
+  font-size: 16px;
+}
+
+.task-card--compact .task-card__description {
+  font-size: 13px;
+}
+
+.task-card--compact .task-card__time {
+  font-size: 19px;
+}
+
+.task-card--compact .task-card__check {
+  width: 46px;
+  height: 46px;
+}
