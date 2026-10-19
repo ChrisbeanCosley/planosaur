@@ -1,9 +1,10 @@
-// Demo data, generated relative to today so the app always looks "live".
-// Replace with API calls once there's a backend.
+// Sample data a new account can load from the dashboard, generated relative to today.
 import { addDays, startOfWeek, toKey } from '../utils/date';
 
-let counter = 0;
-const id = (prefix) => `${prefix}-${++counter}`;
+// Database ids are UUIDs, generated here so the screen can update before the save finishes.
+export const newId = () => crypto.randomUUID();
+
+const id = () => newId();
 
 function seedEvents() {
   const monday = startOfWeek(new Date());
@@ -31,7 +32,7 @@ function seedEvents() {
     { date: day(12), title: 'Meeting with Harold Smith', start: '10:00', end: '11:00', category: 'meeting' },
     { date: day(13), title: "Gaby's baby shower", category: 'personal' },
     { date: day(13), title: 'Work on work.com project', category: 'work' },
-  ].map((e) => ({ id: id('event'), ...e }));
+  ].map((e) => ({ id: id(), ...e }));
 }
 
 function seedTasks() {
@@ -44,14 +45,14 @@ function seedTasks() {
     { title: 'Meeting with Cheryl K', start: '08:00', end: '09:00', category: 'meetings' },
     { title: 'Health and Safety Meeting', start: '12:30', end: '13:00', category: 'other' },
     { title: 'Walk the dog', start: '14:00', end: '15:00', category: 'other' },
-  ].map((t) => ({ id: id('task'), date: today, description: '', done: false, ...t }));
+  ].map((t) => ({ id: id(), date: today, description: '', done: false, ...t }));
 }
 
 function seedInvoices() {
   const today = new Date();
   const d = (n) => toKey(addDays(today, n));
   const invoice = (number, client, date, dueDate, amount, status, extra = {}) => ({
-    id: id('invoice'),
+    id: id(),
     number,
     client,
     date,
@@ -60,7 +61,7 @@ function seedInvoices() {
     reference: '',
     terms: 'net30',
     subject: '',
-    items: [{ id: id('item'), description: 'Professional services', quantity: 1, rate: amount, taxRate: 0 }],
+    items: [{ id: id(), description: 'Professional services', quantity: 1, rate: amount, taxRate: 0 }],
     discount: 0,
     status,
     type: 'invoice',
@@ -82,11 +83,6 @@ function seedInvoices() {
   ];
 }
 
-export const CLIENTS = ['CellC', 'MTN', 'Rain', 'Telcom', 'Telkom', 'Vodacom', 'Work.com'];
-
 export function createSeedData() {
   return { events: seedEvents(), tasks: seedTasks(), invoices: seedInvoices() };
 }
-
-export const newId = (prefix) =>
-  `${prefix}-${globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2)}`;

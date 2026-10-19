@@ -4,7 +4,6 @@ import { Ellipsis, Plus } from 'lucide-react';
 import { useAppData } from '../context/AppDataContext';
 import FilterMenu from '../components/FilterMenu';
 import SearchToggle from '../components/SearchToggle';
-import { CLIENTS } from '../data/seed';
 import { formatLongDate, fromKey } from '../utils/date';
 import { balanceDue, daysUntilDue, invoiceStatus, invoiceTotals, isOpen } from '../utils/invoices';
 import { formatMoney } from '../utils/money';
@@ -39,7 +38,7 @@ function useStats(invoices) {
 }
 
 export default function Invoices() {
-  const { invoices, updateInvoices, deleteInvoices } = useAppData();
+  const { invoices, clients: clientList, updateInvoices, deleteInvoices } = useAppData();
   const navigate = useNavigate();
   const [tab, setTab] = useState('all');
   const [query, setQuery] = useState('');
@@ -98,7 +97,7 @@ export default function Invoices() {
           </button>
           <FilterMenu
             title="Clients"
-            options={CLIENTS.map((c) => ({ value: c, label: c }))}
+            options={clientList.map(({ name }) => ({ value: name, label: name }))}
             selected={clients}
             onChange={setClients}
           />

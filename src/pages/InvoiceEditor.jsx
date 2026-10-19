@@ -2,17 +2,17 @@ import { useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Download, Pencil, Plus, Save, Search, Settings, SlidersHorizontal, Trash, X } from 'lucide-react';
 import { useAppData } from '../context/AppDataContext';
-import { CLIENTS, newId } from '../data/seed';
+import { newId } from '../data/seed';
 import { addDays, fromKey, todayKey, toKey } from '../utils/date';
 import { invoiceTotals, nextInvoiceNumber, TAX_OPTIONS, TERMS_OPTIONS } from '../utils/invoices';
 import { formatNumber } from '../utils/money';
 import './InvoiceEditor.css';
 
-const blankItem = () => ({ id: newId('item'), description: '', quantity: 1, rate: 0, taxRate: 0 });
+const blankItem = () => ({ id: newId(), description: '', quantity: 1, rate: 0, taxRate: 0 });
 
 function blankInvoice(invoices) {
   return {
-    id: newId('invoice'),
+    id: newId(),
     number: nextInvoiceNumber(invoices),
     client: '',
     orderNumber: '',
@@ -32,7 +32,7 @@ function blankInvoice(invoices) {
 
 export default function InvoiceEditor() {
   const { id } = useParams();
-  const { invoices, saveInvoice, deleteInvoices } = useAppData();
+  const { invoices, clients, saveInvoice, deleteInvoices } = useAppData();
   const existing = id ? invoices.find((i) => i.id === id) : null;
   const navigate = useNavigate();
   const [invoice, setInvoice] = useState(() => existing ?? blankInvoice(invoices));
@@ -119,7 +119,7 @@ export default function InvoiceEditor() {
             placeholder="Select Customer"
           />
           <datalist id="client-list">
-            {CLIENTS.map((c) => (
+            {clients.map(({ name: c }) => (
               <option key={c} value={c} />
             ))}
           </datalist>

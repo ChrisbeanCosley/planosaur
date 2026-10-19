@@ -13,9 +13,17 @@ import './Dashboard.css';
 const ACCOUNT_BALANCE = 138889.12; // TODO: comes from Banking once it exists
 
 export default function Dashboard() {
-  const { events, tasks, toggleTask } = useAppData();
+  const { events, tasks, invoices, toggleTask, loadSampleData } = useAppData();
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('');
+  const [seeding, setSeeding] = useState(false);
+  const isEmpty = events.length === 0 && tasks.length === 0 && invoices.length === 0;
+
+  const seed = async () => {
+    setSeeding(true);
+    await loadSampleData();
+    setSeeding(false);
+  };
 
   const q = query.trim().toLowerCase();
   const matches = (text) => !q || text.toLowerCase().includes(q);
@@ -46,6 +54,18 @@ export default function Dashboard() {
           </select>
         </div>
       </header>
+
+      {isEmpty && (
+        <div className="card dashboard__welcome">
+          <div>
+            <h2>Welcome to Planosaur 🦕</h2>
+            <p>Your account is empty. Add your own tasks, events and invoices, or load some sample data to explore.</p>
+          </div>
+          <button type="button" className="btn" onClick={seed} disabled={seeding}>
+            {seeding ? 'Loading…' : 'Load sample data'}
+          </button>
+        </div>
+      )}
 
       <div className="dashboard__top">
         <section className="card dashboard__chart">
