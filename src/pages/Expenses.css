@@ -1,0 +1,171 @@
+.expenses__setup {
+  margin-top: 20px;
+  padding: 16px 20px;
+  border-left: 4px solid var(--green);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.expenses__setup strong {
+  font-size: 12.5px;
+}
+
+.expenses__toolbar {
+  margin: 30.5px 0 20px;
+}
+
+.expenses__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5.5px 21.5px;
+  padding-left: 13.5px;
+}
+
+.expenses__tabs button {
+  padding: 2.5px 0;
+  border: none;
+  border-bottom: 1.5px solid transparent;
+  background: none;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  color: var(--text);
+}
+
+.expenses__tabs button.is-active {
+  color: #b5338e;
+  border-bottom-color: #b5338e;
+}
+
+.toolbar__actions .btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.expenses__stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10.5px 26.5px;
+  padding: 14.5px 53.5px 12px 13.5px;
+  border-radius: var(--radius);
+  background: #e9f7e1;
+}
+
+.expenses__stats div {
+  display: flex;
+  flex-direction: column;
+  gap: 6.5px;
+}
+
+.expenses__stats span {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.expenses__stats strong {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #4e9a2d;
+}
+
+/* Horizontal bars, one per category */
+.expenses__breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 20px;
+  padding: 16px 20px;
+}
+
+.expenses__breakdown .card__title {
+  margin-bottom: 4px;
+  font-size: 11.5px;
+}
+
+.expenses__bar-row {
+  display: grid;
+  grid-template-columns: 100px 1fr 90px;
+  align-items: center;
+  gap: 12px;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.expenses__bar-label,
+.expenses__category {
+  display: inline-flex;
+  align-items: center;
+  gap: 6.5px;
+}
+
+.expenses__bar-label i,
+.expenses__category i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.expenses__bar-track {
+  height: 8px;
+  border-radius: 4px;
+  background: #f1ecf2;
+  overflow: hidden;
+}
+
+.expenses__bar-track span {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+}
+
+.expenses__bar-amount {
+  text-align: right;
+}
+
+.expenses__table {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+  font-size: 10.5px;
+}
+
+.expenses__table th {
+  padding: 0 8px 18px;
+  text-align: left;
+  font-weight: 400;
+  color: var(--muted);
+  letter-spacing: 0.4px;
+}
+
+.expenses__table td {
+  padding: 16px 8px;
+  border-bottom: 1px solid var(--line);
+  font-weight: 500;
+  letter-spacing: 0.4px;
+}
+
+.expenses__table th:first-child,
+.expenses__table td:first-child {
+  padding-left: 16px;
+}
+
+.expenses__table th:last-child,
+.expenses__table td:last-child {
+  padding-right: 16px;
+  text-align: right;
+}
+
+.expenses__table tbody tr {
+  cursor: pointer;
+  transition: background 0.1s ease;
+}
+
+.expenses__table tbody tr:hover {
+  background: rgba(233, 247, 225, 0.6);
+}
+
+.expenses__muted {
+  color: #8a8a8a;
+}

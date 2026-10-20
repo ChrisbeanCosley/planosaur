@@ -108,24 +108,60 @@ const itemsToRows = (inv) =>
     tax_rate: Number(item.taxRate) || 0,
   }));
 
+const expenseFromRow = (r) => ({
+  id: r.id,
+  date: r.date,
+  payee: r.payee,
+  description: r.description ?? '',
+  category: r.category,
+  amount: Number(r.amount),
+});
+
+const expenseToRow = (e) => ({
+  id: e.id,
+  date: e.date,
+  payee: e.payee,
+  description: e.description ?? '',
+  category: e.category,
+  amount: Number(e.amount) || 0,
+});
+
+// PostgREST's "table not found" code: the expenses migration hasn't been run yet.
+const TABLE_MISSING = 'PGRST205';
+
 // ---------- Reads ----------
 export async function fetchAll() {
-  const [tasks, events, invoices, clients] = (
-    await Promise.all([
-      supabase.from('tasks').select('*'),
-      supabase.from('events').select('*'),
-      supabase.from('invoices').select('*, client:clients(name), items:invoice_items(*)'),
-      supabase.from('clients').select('id, name').order('name'),
-    ])
-  ).map(check);
+  const [tasksRes, eventsRes, invoicesRes, clientsRes, expensesRes] = await Promise.all([
+    supabase.from('tasks').select('*'),
+    supabase.from('events').select('*'),
+    supabase.from('invoices').select('*, client:clients(name), items:invoice_items(*)'),
+    supabase.from('clients').select('id, name').order('name'),
+    supabase.from('expenses').select('*'),
+  ]);
+  const [tasks, events, invoices, clients] = [tasksRes, eventsRes, invoicesRes, clientsRes].map(check);
+
+  // A missing expenses table shouldn't break the rest of the app.
+  const expensesMissing = expensesRes.error?.code === TABLE_MISSING;
+  const expenses = expensesMissing ? [] : check(expensesRes);
 
   return {
     tasks: tasks.map(taskFromRow),
     events: events.map(eventFromRow),
     invoices: invoices.map(invoiceFromRow),
     clients,
+    expenses: expenses.map(expenseFromRow),
+    expensesMissing,
   };
 }
+
+// ---------- Expenses ----------
+export const insertExpense = async (expense) =>
+  check(await supabase.from('expenses').insert(expenseToRow(expense)));
+
+export const updateExpense = async (expense) =>
+  check(await supabase.from('expenses').update(expenseToRow(expense)).eq('id', expense.id));
+
+export const deleteExpense = async (id) => check(await supabase.from('expenses').delete().eq('id', id));
 
 // ---------- Tasks & events ----------
 export const insertTask = async (task) => check(await supabase.from('tasks').insert(taskToRow(task)));

@@ -4,7 +4,7 @@ import { newId } from '../data/seed';
 
 const AppDataContext = createContext(null);
 
-const initialState = { tasks: [], events: [], invoices: [], clients: [] };
+const initialState = { tasks: [], events: [], invoices: [], clients: [], expenses: [], expensesMissing: false };
 
 function reducer(state, action) {
   switch (action.type) {
@@ -27,6 +27,15 @@ function reducer(state, action) {
       return { ...state, events: state.events.map((e) => (e.id === action.event.id ? action.event : e)) };
     case 'event/delete':
       return { ...state, events: state.events.filter((e) => e.id !== action.id) };
+    case 'expense/add':
+      return { ...state, expenses: [...state.expenses, action.expense] };
+    case 'expense/update':
+      return {
+        ...state,
+        expenses: state.expenses.map((e) => (e.id === action.expense.id ? action.expense : e)),
+      };
+    case 'expense/delete':
+      return { ...state, expenses: state.expenses.filter((e) => e.id !== action.id) };
     case 'client/add':
       if (state.clients.some((c) => c.id === action.client.id)) return state;
       return {
@@ -129,6 +138,22 @@ export function AppDataProvider({ children }) {
       deleteEvent: (id) => {
         dispatch({ type: 'event/delete', id });
         persist(api.deleteEvent(id));
+      },
+      addExpense: (expense) => {
+        const full = { id: newId(), description: '', ...expense };
+        dispatch({ type: 'expense/add', expense: full });
+        persist(api.insertExpense(full));
+      },
+      updateExpense: (id, changes) => {
+        const expense = state.expenses.find((e) => e.id === id);
+        if (!expense) return;
+        const full = { ...expense, ...changes, id };
+        dispatch({ type: 'expense/update', expense: full });
+        persist(api.updateExpense(full));
+      },
+      deleteExpense: (id) => {
+        dispatch({ type: 'expense/delete', id });
+        persist(api.deleteExpense(id));
       },
       saveInvoice: (invoice) => {
         dispatch({ type: 'invoice/save', invoice });
