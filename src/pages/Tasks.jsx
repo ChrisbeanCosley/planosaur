@@ -64,7 +64,7 @@ export default function Tasks() {
       <div className="toolbar tasks__toolbar">
         <div className="tasks__nav">
           <div className="view-toggle" role="group" aria-label="View">
-            {['day', 'week'].map((v) => (
+            {['week', 'day'].map((v) => (
               <button
                 key={v}
                 type="button"
