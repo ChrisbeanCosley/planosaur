@@ -7,7 +7,7 @@ import WeekRow from '../components/WeekRow';
 import { EVENT_CATEGORIES } from '../data/categories';
 import { startOfWeek, todayKey } from '../utils/date';
 import { formatMoney } from '../utils/money';
-import { byStartTime, taskState } from '../utils/tasks';
+import { byStartTime, calendarItems, taskState } from '../utils/tasks';
 import './Dashboard.css';
 
 const ACCOUNT_BALANCE = 138889.12; // TODO: comes from Banking once it exists
@@ -29,7 +29,7 @@ export default function Dashboard() {
   const matches = (text) => !q || text.toLowerCase().includes(q);
 
   const weekStart = startOfWeek(new Date());
-  const weekEvents = events.filter((e) => matches(e.title) && (!category || e.category === category));
+  const weekEvents = calendarItems(events, tasks).filter((e) => matches(e.title) && (!category || e.category === category));
 
   const today = todayKey();
   const todaysTasks = tasks

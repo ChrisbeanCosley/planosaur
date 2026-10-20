@@ -16,3 +16,21 @@ export const formatTaskTime = (task) =>
   task.start ? `${task.start} - ${task.end}` : task.end ? `Until ${task.end}` : '';
 
 export const byStartTime = (a, b) => (a.start || a.end || '').localeCompare(b.start || b.end || '');
+
+// Task categories mapped onto calendar event types, so colours and the calendar filter line up.
+const TASK_TO_EVENT_CATEGORY = { work: 'work', meetings: 'meeting', other: 'personal' };
+
+// Events plus tasks, shaped as calendar entries. Tasks are marked with kind: 'task'.
+export function calendarItems(events, tasks) {
+  const taskItems = tasks.map((task) => ({
+    id: task.id,
+    kind: 'task',
+    date: task.date,
+    title: task.title,
+    start: task.start,
+    end: task.end,
+    category: TASK_TO_EVENT_CATEGORY[task.category] ?? 'work',
+    done: task.done,
+  }));
+  return [...events, ...taskItems];
+}

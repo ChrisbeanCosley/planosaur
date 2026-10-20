@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import EventCard from './EventCard';
 import { addDays, DAY_LABELS, todayKey, toKey } from '../utils/date';
+import { byStartTime } from '../utils/tasks';
 import './WeekRow.css';
-
-const byStart = (a, b) => (a.start ?? '').localeCompare(b.start ?? '');
 
 export default function WeekRow({ weekStart, events, maxPerDay = 2 }) {
   const [expanded, setExpanded] = useState({});
@@ -14,7 +13,7 @@ export default function WeekRow({ weekStart, events, maxPerDay = 2 }) {
       {DAY_LABELS.map((label, i) => {
         const date = addDays(weekStart, i);
         const key = toKey(date);
-        const dayEvents = events.filter((e) => e.date === key).sort(byStart);
+        const dayEvents = events.filter((e) => e.date === key).sort(byStartTime);
         const showAll = expanded[key];
         const visible = showAll ? dayEvents : dayEvents.slice(0, maxPerDay);
         const hidden = dayEvents.length - visible.length;

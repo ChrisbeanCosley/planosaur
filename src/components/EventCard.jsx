@@ -1,17 +1,24 @@
-import { User } from 'lucide-react';
+import { SquareCheckBig, User } from 'lucide-react';
 import { EVENT_CATEGORIES } from '../data/categories';
+import { formatTaskTime } from '../utils/tasks';
 import './EventCard.css';
 
+// Renders a calendar event, or a task when event.kind === 'task'.
 export default function EventCard({ event }) {
   const category = EVENT_CATEGORIES[event.category] ?? EVENT_CATEGORIES.work;
+  const isTask = event.kind === 'task';
+  const time = isTask ? formatTaskTime(event) : event.start && `${event.start} - ${event.end}`;
+
   return (
-    <div className="event-card" style={{ background: category.color }}>
-      <div className="event-card__title">{event.title}</div>
-      {event.start && (
-        <div>
-          {event.start} - {event.end}
-        </div>
-      )}
+    <div
+      className={`event-card${isTask ? ' event-card--task' : ''}${event.done ? ' event-card--done' : ''}`}
+      style={{ background: category.color }}
+    >
+      <div className="event-card__title">
+        {isTask && <SquareCheckBig size={16} strokeWidth={2} className="event-card__task-icon" aria-label="Task" />}
+        {event.title}
+      </div>
+      {time && <div>{time}</div>}
       {event.person && (
         <div className="event-card__person">
           <User size={18} strokeWidth={1.6} />

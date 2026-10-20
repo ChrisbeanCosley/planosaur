@@ -7,19 +7,20 @@ import SearchToggle from '../components/SearchToggle';
 import WeekRow from '../components/WeekRow';
 import { EVENT_CATEGORIES, toOptions } from '../data/categories';
 import { addDays, formatMonthYear, startOfWeek } from '../utils/date';
+import { calendarItems } from '../utils/tasks';
 import './Calendar.css';
 
 const WEEKS_SHOWN = 2;
 
 export default function Calendar() {
-  const { events, addEvent } = useAppData();
+  const { events, tasks, addEvent } = useAppData();
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date()));
   const [query, setQuery] = useState('');
   const [categories, setCategories] = useState([]);
   const [adding, setAdding] = useState(false);
 
   const q = query.trim().toLowerCase();
-  const visibleEvents = events.filter(
+  const visibleEvents = calendarItems(events, tasks).filter(
     (e) =>
       (!q || `${e.title} ${e.person ?? ''}`.toLowerCase().includes(q)) &&
       (categories.length === 0 || categories.includes(e.category)),
@@ -49,7 +50,7 @@ export default function Calendar() {
           </button>
         </div>
         <div className="toolbar__actions">
-          <SearchToggle value={query} onChange={setQuery} placeholder="Search events" />
+          <SearchToggle value={query} onChange={setQuery} placeholder="Search events & tasks" />
           <button type="button" className="btn" onClick={() => setAdding(true)}>
             <Plus size={24} strokeWidth={1.8} />
             Add Event
