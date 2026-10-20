@@ -259,7 +259,7 @@ export default function InvoiceEditor() {
       </table>
 
       <div className="invoice-editor__bottom">
-        <button type="button" className="btn no-print" onClick={addLine}>
+        <button type="button" className="btn btn--green no-print" onClick={addLine}>
           <Plus size={16} strokeWidth={1.8} /> Add another line
         </button>
 

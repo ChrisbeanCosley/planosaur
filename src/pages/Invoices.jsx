@@ -91,7 +91,7 @@ export default function Invoices() {
         </nav>
         <div className="toolbar__actions">
           <SearchToggle value={query} onChange={setQuery} placeholder="Client or number" />
-          <button type="button" className="btn" onClick={() => navigate('/invoices/new')}>
+          <button type="button" className="btn btn--green" onClick={() => navigate('/invoices/new')}>
             <Plus size={16} strokeWidth={1.8} />
             New Invoice
           </button>

@@ -53,7 +53,7 @@ export default function Calendar() {
         </div>
         <div className="toolbar__actions">
           <SearchToggle value={query} onChange={setQuery} placeholder="Search events & tasks" />
-          <button type="button" className="btn" onClick={() => setAdding(true)}>
+          <button type="button" className="btn btn--green" onClick={() => setAdding(true)}>
             <Plus size={16} strokeWidth={1.8} />
             Add Event
           </button>

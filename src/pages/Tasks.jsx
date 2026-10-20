@@ -103,7 +103,7 @@ export default function Tasks() {
         </div>
         <div className="toolbar__actions">
           <SearchToggle value={query} onChange={setQuery} placeholder="Search tasks" />
-          <button type="button" className="btn" onClick={() => setAddingOn(defaultAddDate)}>
+          <button type="button" className="btn btn--green" onClick={() => setAddingOn(defaultAddDate)}>
             <Plus size={16} strokeWidth={1.8} />
             Add Task
           </button>
