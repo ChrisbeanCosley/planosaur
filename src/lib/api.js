@@ -132,7 +132,17 @@ export const insertTask = async (task) => check(await supabase.from('tasks').ins
 
 export const setTaskDone = async (id, done) => check(await supabase.from('tasks').update({ done }).eq('id', id));
 
+export const updateTask = async (task) =>
+  check(await supabase.from('tasks').update(taskToRow(task)).eq('id', task.id));
+
+export const deleteTask = async (id) => check(await supabase.from('tasks').delete().eq('id', id));
+
 export const insertEvent = async (event) => check(await supabase.from('events').insert(eventToRow(event)));
+
+export const updateEvent = async (event) =>
+  check(await supabase.from('events').update(eventToRow(event)).eq('id', event.id));
+
+export const deleteEvent = async (id) => check(await supabase.from('events').delete().eq('id', id));
 
 // ---------- Invoices ----------
 // Saves the invoice, its client and its line items in one transaction via the

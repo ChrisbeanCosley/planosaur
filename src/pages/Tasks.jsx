@@ -5,6 +5,7 @@ import FilterMenu from '../components/FilterMenu';
 import SearchToggle from '../components/SearchToggle';
 import TaskCard from '../components/TaskCard';
 import TaskFormModal from '../components/TaskFormModal';
+import ItemEditor from '../components/ItemEditor';
 import { TASK_CATEGORIES, toOptions } from '../data/categories';
 import { addDays, formatShortDate, fromKey, startOfDay, todayKey, toKey } from '../utils/date';
 import { byStartTime, taskState } from '../utils/tasks';
@@ -18,7 +19,9 @@ export default function Tasks() {
   const [query, setQuery] = useState('');
   const [categories, setCategories] = useState([]);
   const [adding, setAdding] = useState(false);
+  const [selection, setSelection] = useState(null); // task or event being edited
   const dateInput = useRef(null);
+  const openTask = (task) => setSelection({ kind: 'task', id: task.id });
 
   const key = toKey(date);
   const q = query.trim().toLowerCase();
@@ -94,17 +97,17 @@ export default function Tasks() {
 
               {columnTasks.length === 0 && <p className="empty-state">No tasks</p>}
               {groups.open.map((task) => (
-                <TaskCard key={task.id} task={task} state="open" onToggle={toggleTask} />
+                <TaskCard key={task.id} task={task} state="open" onToggle={toggleTask} onOpen={openTask} />
               ))}
 
               {groups.overdue.length > 0 && <div className="label-divider label-divider--danger">OVERDUE</div>}
               {groups.overdue.map((task) => (
-                <TaskCard key={task.id} task={task} state="overdue" onToggle={toggleTask} />
+                <TaskCard key={task.id} task={task} state="overdue" onToggle={toggleTask} onOpen={openTask} />
               ))}
 
               {groups.done.length > 0 && <div className="label-divider">DONE</div>}
               {groups.done.map((task) => (
-                <TaskCard key={task.id} task={task} state="done" onToggle={toggleTask} />
+                <TaskCard key={task.id} task={task} state="done" onToggle={toggleTask} onOpen={openTask} />
               ))}
             </section>
           );
@@ -112,6 +115,7 @@ export default function Tasks() {
       </div>
 
       {adding && <TaskFormModal defaultDate={key} onSave={addTask} onClose={() => setAdding(false)} />}
+      <ItemEditor selection={selection} onClose={() => setSelection(null)} />
     </div>
   );
 }

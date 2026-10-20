@@ -3,14 +3,17 @@ import Modal, { FormRow } from './Modal';
 import { TASK_CATEGORIES } from '../data/categories';
 import { todayKey } from '../utils/date';
 
-export default function TaskFormModal({ onSave, onClose, defaultDate = todayKey() }) {
+// Adds a new task, or edits `task` when one is passed (then onDelete is shown too).
+export default function TaskFormModal({ task, onSave, onDelete, onClose, defaultDate = todayKey() }) {
+  const editing = Boolean(task);
   const [form, setForm] = useState({
-    title: '',
-    description: '',
-    category: 'work',
-    date: defaultDate,
-    start: '',
-    end: '',
+    title: task?.title ?? '',
+    description: task?.description ?? '',
+    category: task?.category ?? 'work',
+    date: task?.date ?? defaultDate,
+    start: task?.start ?? '',
+    end: task?.end ?? '',
+    done: task?.done ?? false,
   });
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
@@ -25,8 +28,14 @@ export default function TaskFormModal({ onSave, onClose, defaultDate = todayKey(
     onClose();
   };
 
+  const remove = () => {
+    if (!window.confirm(`Delete "${task.title}"?`)) return;
+    onDelete();
+    onClose();
+  };
+
   return (
-    <Modal title="Add Task" onClose={onClose}>
+    <Modal title={editing ? 'Edit Task' : 'Add Task'} onClose={onClose}>
       <form onSubmit={submit}>
         <FormRow label="Title">
           <input className="field" required value={form.title} onChange={set('title')} autoFocus />
@@ -56,12 +65,27 @@ export default function TaskFormModal({ onSave, onClose, defaultDate = todayKey(
             <input className="field" type="time" required value={form.end} onChange={set('end')} />
           </FormRow>
         </div>
+        {editing && (
+          <label className="form-check">
+            <input
+              type="checkbox"
+              checked={form.done}
+              onChange={(e) => setForm((f) => ({ ...f, done: e.target.checked }))}
+            />
+            Done
+          </label>
+        )}
         <div className="modal__actions">
+          {editing && (
+            <button type="button" className="btn btn--danger modal__delete" onClick={remove}>
+              Delete
+            </button>
+          )}
           <button type="button" className="btn btn--ghost" onClick={onClose}>
             Cancel
           </button>
           <button type="submit" className="btn">
-            Add Task
+            {editing ? 'Save changes' : 'Add Task'}
           </button>
         </div>
       </form>

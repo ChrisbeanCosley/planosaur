@@ -4,6 +4,7 @@ import { useAppData } from '../context/AppDataContext';
 import EventFormModal from '../components/EventFormModal';
 import FilterMenu from '../components/FilterMenu';
 import SearchToggle from '../components/SearchToggle';
+import ItemEditor, { selectionFor } from '../components/ItemEditor';
 import WeekRow from '../components/WeekRow';
 import { EVENT_CATEGORIES, toOptions } from '../data/categories';
 import { addDays, formatMonthYear, startOfWeek } from '../utils/date';
@@ -18,6 +19,7 @@ export default function Calendar() {
   const [query, setQuery] = useState('');
   const [categories, setCategories] = useState([]);
   const [adding, setAdding] = useState(false);
+  const [selection, setSelection] = useState(null); // task or event being edited
 
   const q = query.trim().toLowerCase();
   const visibleEvents = calendarItems(events, tasks).filter(
@@ -67,11 +69,19 @@ export default function Calendar() {
       <div className="calendar__weeks">
         {Array.from({ length: WEEKS_SHOWN }, (_, i) => {
           const start = addDays(weekStart, i * 7);
-          return <WeekRow key={start.toISOString()} weekStart={start} events={visibleEvents} />;
+          return (
+            <WeekRow
+              key={start.toISOString()}
+              weekStart={start}
+              events={visibleEvents}
+              onSelect={(item) => setSelection(selectionFor(item))}
+            />
+          );
         })}
       </div>
 
       {adding && <EventFormModal onSave={addEvent} onClose={() => setAdding(false)} />}
+      <ItemEditor selection={selection} onClose={() => setSelection(null)} />
     </div>
   );
 }

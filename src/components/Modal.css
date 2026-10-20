@@ -53,3 +53,22 @@
   gap: 12px;
   margin-top: 8px;
 }
+
+.modal__delete {
+  margin-right: auto;
+}
+
+.form-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.form-check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--green);
+}

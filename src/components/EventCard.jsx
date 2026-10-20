@@ -3,15 +3,17 @@ import { EVENT_CATEGORIES } from '../data/categories';
 import { formatTaskTime } from '../utils/tasks';
 import './EventCard.css';
 
-// Renders a calendar event, or a task when event.kind === 'task'.
-export default function EventCard({ event }) {
+// Renders a calendar event, or a task when event.kind === 'task'. Clickable when onClick is given.
+export default function EventCard({ event, onClick }) {
   const category = EVENT_CATEGORIES[event.category] ?? EVENT_CATEGORIES.work;
   const isTask = event.kind === 'task';
   const time = isTask ? formatTaskTime(event) : event.start && `${event.start} - ${event.end}`;
+  const Tag = onClick ? 'button' : 'div';
 
   return (
-    <div
-      className={`event-card${isTask ? ' event-card--task' : ''}${event.done ? ' event-card--done' : ''}`}
+    <Tag
+      {...(onClick ? { type: 'button', onClick, title: `Edit ${isTask ? 'task' : 'event'}` } : {})}
+      className={`event-card${isTask ? ' event-card--task' : ''}${event.done ? ' event-card--done' : ''}${onClick ? ' event-card--clickable' : ''}`}
       style={{ background: category.color }}
     >
       <div className="event-card__title">
@@ -25,6 +27,6 @@ export default function EventCard({ event }) {
           {event.person}
         </div>
       )}
-    </div>
+    </Tag>
   );
 }

@@ -3,6 +3,7 @@ import { Search } from 'lucide-react';
 import { useAppData } from '../context/AppDataContext';
 import IncomeExpenseChart from '../components/IncomeExpenseChart';
 import TaskCard from '../components/TaskCard';
+import ItemEditor, { selectionFor } from '../components/ItemEditor';
 import WeekRow from '../components/WeekRow';
 import { EVENT_CATEGORIES } from '../data/categories';
 import { startOfWeek, todayKey } from '../utils/date';
@@ -17,6 +18,7 @@ export default function Dashboard() {
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('');
   const [seeding, setSeeding] = useState(false);
+  const [selection, setSelection] = useState(null); // task or event being edited
   const isEmpty = events.length === 0 && tasks.length === 0 && invoices.length === 0;
 
   const seed = async () => {
@@ -93,7 +95,12 @@ export default function Dashboard() {
             {todaysTasks.length === 0 && <p className="empty-state">Nothing left for today 🎉</p>}
             {todaysTasks.map((task) => (
               <div key={task.id} className="task-card-compact-wrap">
-                <TaskCard task={task} state={taskState(task)} onToggle={toggleTask} />
+                <TaskCard
+                  task={task}
+                  state={taskState(task)}
+                  onToggle={toggleTask}
+                  onOpen={(t) => setSelection({ kind: 'task', id: t.id })}
+                />
               </div>
             ))}
           </div>
@@ -107,8 +114,10 @@ export default function Dashboard() {
             {weekStart.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }).toUpperCase()}
           </span>
         </header>
-        <WeekRow weekStart={weekStart} events={weekEvents} />
+        <WeekRow weekStart={weekStart} events={weekEvents} onSelect={(item) => setSelection(selectionFor(item))} />
       </section>
+
+      <ItemEditor selection={selection} onClose={() => setSelection(null)} />
     </div>
   );
 }

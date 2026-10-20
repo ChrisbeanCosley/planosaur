@@ -17,8 +17,16 @@ function reducer(state, action) {
         ...state,
         tasks: state.tasks.map((t) => (t.id === action.id ? { ...t, done: !t.done } : t)),
       };
+    case 'task/update':
+      return { ...state, tasks: state.tasks.map((t) => (t.id === action.task.id ? action.task : t)) };
+    case 'task/delete':
+      return { ...state, tasks: state.tasks.filter((t) => t.id !== action.id) };
     case 'event/add':
       return { ...state, events: [...state.events, action.event] };
+    case 'event/update':
+      return { ...state, events: state.events.map((e) => (e.id === action.event.id ? action.event : e)) };
+    case 'event/delete':
+      return { ...state, events: state.events.filter((e) => e.id !== action.id) };
     case 'client/add':
       if (state.clients.some((c) => c.id === action.client.id)) return state;
       return {
@@ -95,10 +103,32 @@ export function AppDataProvider({ children }) {
         dispatch({ type: 'task/toggle', id });
         persist(api.setTaskDone(id, !task.done));
       },
+      updateTask: (id, changes) => {
+        const task = state.tasks.find((t) => t.id === id);
+        if (!task) return;
+        const full = { ...task, ...changes, id };
+        dispatch({ type: 'task/update', task: full });
+        persist(api.updateTask(full));
+      },
+      deleteTask: (id) => {
+        dispatch({ type: 'task/delete', id });
+        persist(api.deleteTask(id));
+      },
       addEvent: (event) => {
         const full = { id: newId(), ...event };
         dispatch({ type: 'event/add', event: full });
         persist(api.insertEvent(full));
+      },
+      updateEvent: (id, changes) => {
+        const event = state.events.find((e) => e.id === id);
+        if (!event) return;
+        const full = { ...event, ...changes, id };
+        dispatch({ type: 'event/update', event: full });
+        persist(api.updateEvent(full));
+      },
+      deleteEvent: (id) => {
+        dispatch({ type: 'event/delete', id });
+        persist(api.deleteEvent(id));
       },
       saveInvoice: (invoice) => {
         dispatch({ type: 'invoice/save', invoice });

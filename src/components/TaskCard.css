@@ -38,6 +38,34 @@
   min-width: 0;
 }
 
+.task-card--clickable {
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.task-card--clickable:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(120, 70, 140, 0.18);
+}
+
+/* The body is a button for keyboard users; strip button styling */
+.task-card--clickable .task-card__body {
+  flex: 1;
+  padding: 0;
+  border: none;
+  background: none;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.task-card--clickable .task-card__body:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
 .task-card__title {
   font-size: 20px;
   font-weight: 500;

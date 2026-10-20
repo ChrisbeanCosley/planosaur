@@ -3,31 +3,42 @@ import Modal, { FormRow } from './Modal';
 import { EVENT_CATEGORIES } from '../data/categories';
 import { todayKey } from '../utils/date';
 
-export default function EventFormModal({ onSave, onClose, defaultDate = todayKey() }) {
+// Adds a new event, or edits `event` when one is passed (then onDelete is shown too).
+export default function EventFormModal({ event, onSave, onDelete, onClose, defaultDate = todayKey() }) {
+  const editing = Boolean(event);
   const [form, setForm] = useState({
-    title: '',
-    category: 'meeting',
-    date: defaultDate,
-    start: '',
-    end: '',
-    person: '',
+    title: event?.title ?? '',
+    category: event?.category ?? 'meeting',
+    date: event?.date ?? defaultDate,
+    start: event?.start ?? '',
+    end: event?.end ?? '',
+    person: event?.person ?? '',
   });
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
   const submit = (e) => {
     e.preventDefault();
-    const { start, end, person, ...rest } = form;
+    const hasTime = Boolean(form.start && form.end);
     onSave({
-      ...rest,
       title: form.title.trim(),
-      ...(start && end ? { start, end } : {}),
-      ...(person.trim() ? { person: person.trim() } : {}),
+      category: form.category,
+      date: form.date,
+      // Undefined (rather than missing) so editing can clear a time or person.
+      start: hasTime ? form.start : undefined,
+      end: hasTime ? form.end : undefined,
+      person: form.person.trim() || undefined,
     });
     onClose();
   };
 
+  const remove = () => {
+    if (!window.confirm(`Delete "${event.title}"?`)) return;
+    onDelete();
+    onClose();
+  };
+
   return (
-    <Modal title="Add Event" onClose={onClose}>
+    <Modal title={editing ? 'Edit Event' : 'Add Event'} onClose={onClose}>
       <form onSubmit={submit}>
         <FormRow label="Title">
           <input className="field" required value={form.title} onChange={set('title')} autoFocus />
@@ -58,11 +69,16 @@ export default function EventFormModal({ onSave, onClose, defaultDate = todayKey
           <input className="field" value={form.person} onChange={set('person')} placeholder="e.g. Sarah J" />
         </FormRow>
         <div className="modal__actions">
+          {editing && (
+            <button type="button" className="btn btn--danger modal__delete" onClick={remove}>
+              Delete
+            </button>
+          )}
           <button type="button" className="btn btn--ghost" onClick={onClose}>
             Cancel
           </button>
           <button type="submit" className="btn">
-            Add Event
+            {editing ? 'Save changes' : 'Add Event'}
           </button>
         </div>
       </form>

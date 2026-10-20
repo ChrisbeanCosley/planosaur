@@ -10,6 +10,26 @@
   overflow-wrap: anywhere;
 }
 
+.event-card--clickable {
+  display: block;
+  width: 100%;
+  border: none;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+.event-card--clickable:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+
+.event-card--clickable:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
 /* Tasks get a dashed inner outline and a tick icon so they read differently from events */
 .event-card--task {
   box-shadow: var(--shadow-sm), inset 0 0 0 2px rgba(255, 255, 255, 0.55);

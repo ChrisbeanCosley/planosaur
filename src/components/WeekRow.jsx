@@ -4,7 +4,7 @@ import { addDays, DAY_LABELS, todayKey, toKey } from '../utils/date';
 import { byStartTime } from '../utils/tasks';
 import './WeekRow.css';
 
-export default function WeekRow({ weekStart, events, maxPerDay = 2 }) {
+export default function WeekRow({ weekStart, events, onSelect, maxPerDay = 2 }) {
   const [expanded, setExpanded] = useState({});
   const today = todayKey();
 
@@ -25,7 +25,7 @@ export default function WeekRow({ weekStart, events, maxPerDay = 2 }) {
             <div className="week-day__number">{date.getDate()}</div>
             <div className="week-day__events">
               {visible.map((event) => (
-                <EventCard key={event.id} event={event} />
+                <EventCard key={event.id} event={event} onClick={onSelect && (() => onSelect(event))} />
               ))}
               {hidden > 0 && (
                 <button type="button" className="link-button week-day__more" onClick={toggle}>
