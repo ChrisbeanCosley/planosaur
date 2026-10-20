@@ -10,6 +10,7 @@ import InvoiceEditor from './pages/InvoiceEditor';
 import InvoicePreview from './pages/InvoicePreview';
 import Tasks from './pages/Tasks';
 import Expenses from './pages/Expenses';
+import Settings from './pages/Settings';
 import ComingSoon from './pages/ComingSoon';
 import Login from './pages/Login';
 
@@ -35,7 +36,7 @@ export default function App() {
           <Route path="banking" element={<Navigate to="/expenses" replace />} />
           <Route path="time-tracking" element={<ComingSoon title="Time Tracking" />} />
           <Route path="tasks" element={<Tasks />} />
-          <Route path="settings" element={<ComingSoon title="Settings" />} />
+          <Route path="settings" element={<Settings />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Route>
       </Routes>

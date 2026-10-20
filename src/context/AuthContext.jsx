@@ -16,11 +16,23 @@ export function AuthProvider({ children }) {
   const user = session?.user ?? null;
   const name = user?.user_metadata?.full_name || user?.email?.split('@')[0] || '';
 
+  // Supabase calls resolve to { data, error }; throw so callers can use try/catch.
+  const run = async (promise) => {
+    const { data, error } = await promise;
+    if (error) throw error;
+    return data;
+  };
+
   const value = {
     loading: session === undefined,
     user,
     name,
     signOut: () => supabase.auth.signOut(),
+    updateName: (fullName) => run(supabase.auth.updateUser({ data: { full_name: fullName } })),
+    // Emails the user a one-time code that proves it's really them.
+    sendPasswordCode: () => run(supabase.auth.reauthenticate()),
+    // Changes the password; Supabase rejects it unless the emailed code (nonce) is valid.
+    changePassword: (password, code) => run(supabase.auth.updateUser({ password, nonce: code })),
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
