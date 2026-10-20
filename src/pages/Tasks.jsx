@@ -23,7 +23,7 @@ function weekLabel(weekStart) {
 
 export default function Tasks() {
   const { tasks, addTask, toggleTask } = useAppData();
-  const [view, setView] = useState('day'); // 'day' | 'week'
+  const [view, setView] = useState('week'); // 'day' | 'week'
   const [date, setDate] = useState(() => startOfDay(new Date()));
   const [query, setQuery] = useState('');
   const [categories, setCategories] = useState([]);
