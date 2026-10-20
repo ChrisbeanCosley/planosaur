@@ -1,6 +1,6 @@
 // The invoice as a PDF document (A4), built with @react-pdf/renderer.
 // Sizes are in PDF points (1pt = 1/72 inch), independent of the app's screen scale.
-import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Document, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import { formatLongDate, fromKey } from '../../utils/date';
 import { invoiceStatus, invoiceTotals, lineAmount, taxLabel, termsLabel } from '../../utils/invoices';
 import { formatMoney } from '../../utils/money';
@@ -18,6 +18,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 26, fontFamily: 'Helvetica-Bold', color: PURPLE, letterSpacing: 2 },
   number: { marginTop: 4, fontSize: 11, color: MUTED },
   fromBlock: { alignItems: 'flex-end', maxWidth: 220 },
+  logo: { maxWidth: 180, maxHeight: 60, marginBottom: 8, objectFit: 'contain' },
   fromName: { fontSize: 13, fontFamily: 'Helvetica-Bold', marginBottom: 3 },
   muted: { color: MUTED },
   meta: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 24 },
@@ -97,6 +98,7 @@ export default function InvoicePdf({ invoice, from }) {
             <Text style={styles.number}>{invoice.number}</Text>
           </View>
           <View style={styles.fromBlock}>
+            {from.logoUrl && <Image style={styles.logo} src={from.logoUrl} />}
             <Text style={styles.fromName}>{from.name}</Text>
             {from.email && <Text style={styles.muted}>{from.email}</Text>}
           </View>

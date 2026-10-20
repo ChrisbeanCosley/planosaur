@@ -12,14 +12,13 @@ import './InvoicePreview.css';
 export default function InvoicePreview() {
   const { id } = useParams();
   const { invoices } = useAppData();
-  const { name, user } = useAuth();
+  const { sender: from } = useAuth();
   const navigate = useNavigate();
   const [downloading, setDownloading] = useState(false);
 
   const invoice = invoices.find((i) => i.id === id);
   if (!invoice) return <Navigate to="/invoices" replace />;
 
-  const from = { name, email: user?.email };
   const status = invoiceStatus(invoice);
   const { total } = invoiceTotals(invoice);
 

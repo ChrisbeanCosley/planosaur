@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { KeyRound, Mail, UserRound } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Image, KeyRound, Mail, UserRound } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import './Settings.css';
 
@@ -11,6 +11,7 @@ export default function Settings() {
       <h1 className="page-title">Settings</h1>
       <div className="settings__sections">
         <ProfileSection />
+        <LogoSection />
         <PasswordSection />
       </div>
     </div>
@@ -68,6 +69,72 @@ function ProfileSection() {
           </button>
         </div>
       </form>
+    </section>
+  );
+}
+
+// Company logo shown at the top of invoices.
+function LogoSection() {
+  const { logoUrl, uploadLogo, removeLogo } = useAuth();
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState(null);
+  const fileInput = useRef(null);
+
+  const run = async (action, success) => {
+    setBusy(true);
+    setMessage(null);
+    try {
+      await action();
+      setMessage({ tone: 'success', text: success });
+    } catch (err) {
+      setMessage({ tone: 'error', text: err.message });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const onFile = (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // allow choosing the same file again
+    if (file) run(() => uploadLogo(file), 'Logo saved. It now appears on your invoices.');
+  };
+
+  const remove = () => {
+    if (!window.confirm('Remove your company logo from invoices?')) return;
+    run(removeLogo, 'Logo removed.');
+  };
+
+  return (
+    <section className="card settings__card">
+      <h2 className="settings__heading">
+        <Image size={17} strokeWidth={1.8} /> Company logo
+      </h2>
+      <div className="settings__form">
+        <div className="settings__logo">
+          {logoUrl ? <img src={logoUrl} alt="Company logo" /> : <span>No logo yet</span>}
+        </div>
+        <p className="settings__hint">Shown at the top of your invoices. PNG or JPG, up to 2 MB.</p>
+        <Message message={message} />
+        <input
+          ref={fileInput}
+          type="file"
+          accept="image/png,image/jpeg"
+          className="visually-hidden"
+          onChange={onFile}
+          tabIndex={-1}
+          aria-hidden="true"
+        />
+        <div className="settings__actions">
+          {logoUrl && (
+            <button type="button" className="btn btn--ghost" onClick={remove} disabled={busy}>
+              Remove
+            </button>
+          )}
+          <button type="button" className="btn" onClick={() => fileInput.current?.click()} disabled={busy}>
+            {busy ? 'Saving…' : logoUrl ? 'Replace logo' : 'Upload logo'}
+          </button>
+        </div>
+      </div>
     </section>
   );
 }

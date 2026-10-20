@@ -3,6 +3,12 @@ import { supabase } from '../lib/supabase';
 
 const AuthContext = createContext(null);
 
+// Company logo storage (see supabase/migrations/0004_logo_storage.sql).
+const LOGO_BUCKET = 'logos';
+const LOGO_TYPES = { 'image/png': 'png', 'image/jpeg': 'jpg' };
+const LOGO_MAX_BYTES = 2 * 1024 * 1024;
+const LOGO_URL_SECONDS = 60 * 60;
+
 export function AuthProvider({ children }) {
   // undefined = still checking, null = signed out
   const [session, setSession] = useState(undefined);
@@ -15,6 +21,28 @@ export function AuthProvider({ children }) {
 
   const user = session?.user ?? null;
   const name = user?.user_metadata?.full_name || user?.email?.split('@')[0] || '';
+  const logoPath = user?.user_metadata?.logo_path ?? null;
+
+  // The logos bucket is private, so the logo is shown through a short-lived signed URL,
+  // refreshed before it expires.
+  const [logoUrl, setLogoUrl] = useState(null);
+  useEffect(() => {
+    if (!logoPath) {
+      setLogoUrl(null);
+      return undefined;
+    }
+    let cancelled = false;
+    const refresh = async () => {
+      const { data } = await supabase.storage.from(LOGO_BUCKET).createSignedUrl(logoPath, LOGO_URL_SECONDS);
+      if (!cancelled) setLogoUrl(data?.signedUrl ?? null);
+    };
+    refresh();
+    const timer = setInterval(refresh, (LOGO_URL_SECONDS - 300) * 1000);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, [logoPath]);
 
   // Supabase calls resolve to { data, error }; throw so callers can use try/catch.
   const run = async (promise) => {
@@ -23,10 +51,31 @@ export function AuthProvider({ children }) {
     return data;
   };
 
+  const uploadLogo = async (file) => {
+    if (!LOGO_TYPES[file.type]) throw new Error('Please choose a PNG or JPG image.');
+    if (file.size > LOGO_MAX_BYTES) throw new Error('The logo must be 2 MB or smaller.');
+    // A new file name each time so browsers don't keep showing a cached old logo.
+    const path = `${user.id}/logo-${Date.now()}.${LOGO_TYPES[file.type]}`;
+    await run(supabase.storage.from(LOGO_BUCKET).upload(path, file, { contentType: file.type }));
+    await run(supabase.auth.updateUser({ data: { logo_path: path } }));
+    if (logoPath) await supabase.storage.from(LOGO_BUCKET).remove([logoPath]);
+  };
+
+  const removeLogo = async () => {
+    if (!logoPath) return;
+    await run(supabase.auth.updateUser({ data: { logo_path: null } }));
+    await supabase.storage.from(LOGO_BUCKET).remove([logoPath]);
+  };
+
   const value = {
     loading: session === undefined,
     user,
     name,
+    logoUrl,
+    // Who invoices are from: shown on the invoice sheet and PDF.
+    sender: { name, email: user?.email, logoUrl },
+    uploadLogo,
+    removeLogo,
     signOut: () => supabase.auth.signOut(),
     updateName: (fullName) => run(supabase.auth.updateUser({ data: { full_name: fullName } })),
     // Emails the user a one-time code that proves it's really them.

@@ -36,6 +36,7 @@ export default function InvoiceSheet({ invoice, from }) {
             <div className="sheet__number">{invoice.number}</div>
           </div>
           <div className="sheet__from">
+            {from.logoUrl && <img className="sheet__logo" src={from.logoUrl} alt="" />}
             <strong>{from.name}</strong>
             {from.email && <span>{from.email}</span>}
           </div>

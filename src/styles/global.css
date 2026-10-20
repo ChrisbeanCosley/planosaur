@@ -250,6 +250,17 @@ select.field {
   font-size: 10px;
 }
 
+/* Hidden native inputs (date picker, file picker) opened by a visible button */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  bottom: 0;
+  right: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
 @media print {
   .no-print {
     display: none !important;

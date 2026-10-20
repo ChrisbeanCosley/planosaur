@@ -39,7 +39,7 @@ export default function InvoiceEditor() {
   const [invoice, setInvoice] = useState(() => existing ?? blankInvoice(invoices));
   const [error, setError] = useState('');
   const [downloading, setDownloading] = useState(false);
-  const { name, user } = useAuth();
+  const { sender } = useAuth();
 
   if (id && !existing) return <Navigate to="/invoices" replace />;
 
@@ -79,7 +79,7 @@ export default function InvoiceEditor() {
       const { downloadInvoicePdf } = await import('../components/pdf/downloadInvoicePdf');
       await downloadInvoicePdf(
         { ...invoice, client: invoice.client.trim() || 'Customer' },
-        { name, email: user?.email },
+        sender,
       );
     } finally {
       setDownloading(false);
