@@ -12,7 +12,9 @@
   background: linear-gradient(180deg, #e0609d 0%, #b26dc6 55%, #8a7bea 100%);
   box-shadow: 5.5px 0 16px rgba(90, 40, 110, 0.18);
   z-index: 2;
-  overflow-y: auto; /* on short windows, scroll instead of squashing items */
+  /* On short windows, scroll up/down instead of squashing items; never scroll sideways */
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .sidebar__avatar {
