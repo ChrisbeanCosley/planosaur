@@ -53,3 +53,11 @@ export function nextInvoiceNumber(invoices) {
   }, 0);
   return `INV-${String(max + 1).padStart(5, '0')}`;
 }
+
+// Display helpers shared by the on-screen invoice and the PDF.
+export const termsLabel = (value) => TERMS_OPTIONS.find((t) => t.value === value && t.days !== null)?.label;
+
+export const taxLabel = (rate) => (Number(rate) > 0 ? `${Math.round(Number(rate) * 100)}%` : '—');
+
+export const lineAmount = (item) =>
+  (Number(item.quantity) || 0) * (Number(item.rate) || 0) * (1 + (Number(item.taxRate) || 0));

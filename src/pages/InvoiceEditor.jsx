@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Download, Pencil, Plus, Save, Search, Settings, SlidersHorizontal, Trash, X } from 'lucide-react';
 import { useAppData } from '../context/AppDataContext';
+import { useAuth } from '../context/AuthContext';
 import { newId } from '../data/seed';
 import { addDays, fromKey, todayKey, toKey } from '../utils/date';
 import { invoiceTotals, nextInvoiceNumber, TAX_OPTIONS, TERMS_OPTIONS } from '../utils/invoices';
@@ -37,6 +38,8 @@ export default function InvoiceEditor() {
   const navigate = useNavigate();
   const [invoice, setInvoice] = useState(() => existing ?? blankInvoice(invoices));
   const [error, setError] = useState('');
+  const [downloading, setDownloading] = useState(false);
+  const { name, user } = useAuth();
 
   if (id && !existing) return <Navigate to="/invoices" replace />;
 
@@ -66,7 +69,21 @@ export default function InvoiceEditor() {
     if (!invoice.client.trim()) return setError('Please select a customer.');
     if (!invoice.items.some((i) => i.description.trim())) return setError('Add at least one item.');
     saveInvoice({ ...invoice, client: invoice.client.trim(), dueDate: invoice.dueDate || invoice.date });
-    navigate('/invoices');
+    navigate(`/invoices/${invoice.id}`); // show the saved invoice's preview
+  };
+
+  // Downloads what's in the form right now, saved or not.
+  const download = async () => {
+    setDownloading(true);
+    try {
+      const { downloadInvoicePdf } = await import('../components/pdf/downloadInvoicePdf');
+      await downloadInvoicePdf(
+        { ...invoice, client: invoice.client.trim() || 'Customer' },
+        { name, email: user?.email },
+      );
+    } finally {
+      setDownloading(false);
+    }
   };
 
   const remove = () => {
@@ -78,10 +95,10 @@ export default function InvoiceEditor() {
   return (
     <div className="invoice-editor">
       <header className="page-header invoice-editor__header">
-        <h1 className="page-title">{existing ? invoice.number : 'New Invoice'}</h1>
+        <h1 className="page-title">{existing ? `Edit ${existing.number}` : 'New Invoice'}</h1>
         <div className="invoice-editor__actions no-print">
-          <button type="button" className="btn btn--pink" onClick={() => window.print()}>
-            <Download size={15} strokeWidth={1.8} /> Download Invoice
+          <button type="button" className="btn btn--pink" onClick={download} disabled={downloading}>
+            <Download size={15} strokeWidth={1.8} /> {downloading ? 'Preparing…' : 'Download Invoice'}
           </button>
           <button type="button" className="btn btn--danger" onClick={remove}>
             <Trash size={15} strokeWidth={1.8} /> Delete Invoice

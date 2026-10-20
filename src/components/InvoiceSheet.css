@@ -1,0 +1,215 @@
+/*
+ * On-screen copy of the PDF invoice. Everything is sized in em so the sheet keeps
+ * A4 proportions at any width: 1em here = 10pt in the PDF (an A4 page is 59.5em x 84.2em).
+ */
+.sheet-frame {
+  container-type: inline-size;
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.sheet {
+  --purple: #8e4498;
+  --pink: #df5f9c;
+  --ink: #4a4a4a;
+  --grey: #8a8a8a;
+  --rule: #e5e0e6;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(84.2 / 59.5 * 100cqw); /* A4 height for the current width */
+  padding: 4.8em 4.8em 3.2em;
+  overflow: hidden;
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: 0 6px 24px rgba(90, 40, 110, 0.14);
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: calc(100cqw / 59.5);
+  line-height: 1.25;
+  color: var(--ink);
+}
+
+.sheet__accent {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 0.8em;
+  background: var(--purple);
+}
+
+.sheet__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 3.2em;
+}
+
+.sheet__title {
+  margin: 0;
+  font-size: 2.6em;
+  font-weight: 700;
+  letter-spacing: 0.077em;
+  line-height: 1;
+  color: var(--purple);
+}
+
+.sheet__number {
+  margin-top: 0.4em;
+  font-size: 1.1em;
+  color: var(--grey);
+}
+
+.sheet__from {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  max-width: 22em;
+  text-align: right;
+  color: var(--grey);
+}
+
+.sheet__from strong {
+  margin-bottom: 0.25em;
+  font-size: 1.3em;
+  color: var(--ink);
+}
+
+.sheet__stamp {
+  position: absolute;
+  top: 5.6em;
+  left: 25em;
+  padding: 0.3em 0.9em;
+  border: 0.2em solid currentColor;
+  border-radius: 0.4em;
+  font-size: 1.4em;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  transform: rotate(-8deg);
+}
+
+.sheet__stamp--paid {
+  color: #5aa83a;
+}
+
+.sheet__stamp--overdue {
+  color: #d65c5c;
+}
+
+.sheet__stamp--draft {
+  color: var(--grey);
+}
+
+.sheet__meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2.4em;
+}
+
+.sheet__label {
+  margin-bottom: 0.6em;
+  font-size: 0.8em;
+  font-weight: 700;
+  letter-spacing: 0.125em;
+  color: var(--grey);
+}
+
+.sheet__client {
+  font-size: 1.3em;
+  font-weight: 700;
+}
+
+.sheet__details {
+  width: 21em;
+}
+
+.sheet__detail {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.4em;
+}
+
+.sheet__detail span:first-child {
+  color: var(--grey);
+}
+
+.sheet__subject {
+  margin: 0 0 1.6em;
+  font-size: 1.1em;
+}
+
+.sheet__table {
+  width: 100%;
+  border-collapse: collapse;
+  border-top: 1px solid var(--rule);
+}
+
+.sheet__table th {
+  padding: 0.8em;
+  background: #f8eff8;
+  font-size: 0.8em;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--grey);
+  text-align: right;
+}
+
+.sheet__table td {
+  padding: 0.9em 0.8em;
+  border-bottom: 1px solid var(--rule);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.sheet__table th:first-child,
+.sheet__table td:first-child {
+  width: 100%;
+  text-align: left;
+  white-space: normal;
+}
+
+.sheet__totals {
+  align-self: flex-end;
+  width: 23em;
+  margin-top: 1.8em;
+}
+
+.sheet__totals > div {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.4em 0;
+}
+
+.sheet__totals > div span:first-child {
+  color: var(--grey);
+}
+
+.sheet__totals > .sheet__grand-total {
+  margin-top: 0.6em;
+  padding-top: 0.8em;
+  border-top: 0.15em solid var(--purple);
+  font-size: 1.3em;
+  font-weight: 700;
+}
+
+.sheet__totals > .sheet__grand-total span:first-child {
+  color: var(--ink);
+}
+
+.sheet__totals > .sheet__balance {
+  margin-top: 0.4em;
+}
+
+.sheet__totals > .sheet__balance,
+.sheet__totals > .sheet__balance span:first-child {
+  font-weight: 700;
+  color: var(--pink);
+}
+
+.sheet__footer {
+  margin-top: auto;
+  padding-top: 3.2em;
+  font-size: 0.9em;
+  text-align: center;
+  color: var(--grey);
+}
