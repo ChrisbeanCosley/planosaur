@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Paperclip, Plus } from 'lucide-react';
 import { useAppData } from '../context/AppDataContext';
 import ExpenseFormModal from '../components/ExpenseFormModal';
 import FilterMenu from '../components/FilterMenu';
@@ -33,7 +33,7 @@ const PERIODS = [
 ];
 
 export default function Expenses() {
-  const { expenses, expensesMissing, addExpense, updateExpense, deleteExpense } = useAppData();
+  const { expenses, expensesMissing, receipts } = useAppData();
   const [period, setPeriod] = useState('month');
   const [query, setQuery] = useState('');
   const [categories, setCategories] = useState([]);
@@ -52,6 +52,12 @@ export default function Expenses() {
     .sort((a, b) => b.date.localeCompare(a.date));
 
   const total = rows.reduce((sum, e) => sum + e.amount, 0);
+
+  // How many receipts each expense has, for the paperclip column.
+  const receiptCounts = {};
+  receipts.forEach((r) => {
+    receiptCounts[r.expenseId] = (receiptCounts[r.expenseId] ?? 0) + 1;
+  });
   const byCategory = Object.entries(EXPENSE_CATEGORIES)
     .map(([value, meta]) => ({
       value,
@@ -139,13 +145,16 @@ export default function Expenses() {
             <th>Paid to</th>
             <th>Description</th>
             <th>Category</th>
+            <th className="expenses__receipt-col">
+              <Paperclip size={13} strokeWidth={1.8} aria-label="Receipts" />
+            </th>
             <th>Amount</th>
           </tr>
         </thead>
         <tbody>
           {rows.length === 0 && (
             <tr>
-              <td colSpan={5} className="empty-state">
+              <td colSpan={6} className="empty-state">
                 No expenses for this period.
               </td>
             </tr>
@@ -163,6 +172,18 @@ export default function Expenses() {
                     {category.label}
                   </span>
                 </td>
+                <td className="expenses__receipt-col">
+                  {receiptCounts[expense.id] ? (
+                    <span className="expenses__receipts" title={`${receiptCounts[expense.id]} receipt(s) attached`}>
+                      <Paperclip size={12} strokeWidth={1.8} />
+                      {receiptCounts[expense.id]}
+                    </span>
+                  ) : (
+                    <span className="expenses__no-receipt" title="No receipt attached">
+                      —
+                    </span>
+                  )}
+                </td>
                 <td>{formatMoney(expense.amount)}</td>
               </tr>
             );
@@ -170,13 +191,10 @@ export default function Expenses() {
         </tbody>
       </table>
 
-      {editing === 'new' && <ExpenseFormModal onSave={addExpense} onClose={() => setEditing(null)} />}
-      {editing && editing !== 'new' && (
+      {editing && (
         <ExpenseFormModal
-          key={editing.id}
-          expense={editing}
-          onSave={(changes) => updateExpense(editing.id, changes)}
-          onDelete={() => deleteExpense(editing.id)}
+          key={editing === 'new' ? 'new' : editing.id}
+          expense={editing === 'new' ? null : editing}
           onClose={() => setEditing(null)}
         />
       )}

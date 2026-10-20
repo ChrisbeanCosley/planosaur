@@ -166,6 +166,23 @@
   background: rgba(233, 247, 225, 0.6);
 }
 
+.expenses__table .expenses__receipt-col {
+  width: 48px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.expenses__receipts {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--primary);
+}
+
+.expenses__no-receipt {
+  color: #d0c8d1;
+}
+
 .expenses__muted {
   color: #8a8a8a;
 }

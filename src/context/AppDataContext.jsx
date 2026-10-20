@@ -4,7 +4,16 @@ import { newId } from '../data/seed';
 
 const AppDataContext = createContext(null);
 
-const initialState = { tasks: [], events: [], invoices: [], clients: [], expenses: [], expensesMissing: false };
+const initialState = {
+  tasks: [],
+  events: [],
+  invoices: [],
+  clients: [],
+  expenses: [],
+  expensesMissing: false,
+  receipts: [],
+  receiptsMissing: false,
+};
 
 function reducer(state, action) {
   switch (action.type) {
@@ -35,7 +44,15 @@ function reducer(state, action) {
         expenses: state.expenses.map((e) => (e.id === action.expense.id ? action.expense : e)),
       };
     case 'expense/delete':
-      return { ...state, expenses: state.expenses.filter((e) => e.id !== action.id) };
+      return {
+        ...state,
+        expenses: state.expenses.filter((e) => e.id !== action.id),
+        receipts: state.receipts.filter((r) => r.expenseId !== action.id),
+      };
+    case 'receipt/add':
+      return { ...state, receipts: [...state.receipts, action.receipt] };
+    case 'receipt/delete':
+      return { ...state, receipts: state.receipts.filter((r) => r.id !== action.id) };
     case 'client/add':
       if (state.clients.some((c) => c.id === action.client.id)) return state;
       return {
@@ -139,21 +156,39 @@ export function AppDataProvider({ children }) {
         dispatch({ type: 'event/delete', id });
         persist(api.deleteEvent(id));
       },
+      // Expense saves return their promise so the form can wait (e.g. before uploading receipts).
       addExpense: (expense) => {
         const full = { id: newId(), description: '', ...expense };
         dispatch({ type: 'expense/add', expense: full });
-        persist(api.insertExpense(full));
+        const saving = api.insertExpense(full);
+        persist(saving);
+        return saving;
       },
       updateExpense: (id, changes) => {
         const expense = state.expenses.find((e) => e.id === id);
-        if (!expense) return;
+        if (!expense) return Promise.resolve();
         const full = { ...expense, ...changes, id };
         dispatch({ type: 'expense/update', expense: full });
-        persist(api.updateExpense(full));
+        const saving = api.updateExpense(full);
+        persist(saving);
+        return saving;
       },
       deleteExpense: (id) => {
+        const paths = state.receipts.filter((r) => r.expenseId === id).map((r) => r.path);
         dispatch({ type: 'expense/delete', id });
-        persist(api.deleteExpense(id));
+        persist(api.deleteExpense(id, paths));
+      },
+      // Uploads first, then shows it: there's nothing to display until the file is stored.
+      addReceipt: async (expenseId, file) => {
+        const receipt = await api.uploadReceipt(expenseId, file);
+        dispatch({ type: 'receipt/add', receipt });
+        return receipt;
+      },
+      removeReceipt: (receipt) => {
+        dispatch({ type: 'receipt/delete', id: receipt.id });
+        const removing = api.deleteReceipt(receipt);
+        persist(removing);
+        return removing;
       },
       saveInvoice: (invoice) => {
         dispatch({ type: 'invoice/save', invoice });

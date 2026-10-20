@@ -126,23 +126,34 @@ const expenseToRow = (e) => ({
   amount: Number(e.amount) || 0,
 });
 
-// PostgREST's "table not found" code: the expenses migration hasn't been run yet.
+const receiptFromRow = (r) => ({
+  id: r.id,
+  expenseId: r.expense_id,
+  path: r.path,
+  fileName: r.file_name,
+  mimeType: r.mime_type,
+  size: r.size_bytes,
+});
+
+// PostgREST's "table not found" code: a migration hasn't been run yet.
 const TABLE_MISSING = 'PGRST205';
+
+// Returns [rows, missing] so a not-yet-created table doesn't break the rest of the app.
+const optionalTable = (res) => (res.error?.code === TABLE_MISSING ? [[], true] : [check(res), false]);
 
 // ---------- Reads ----------
 export async function fetchAll() {
-  const [tasksRes, eventsRes, invoicesRes, clientsRes, expensesRes] = await Promise.all([
+  const [tasksRes, eventsRes, invoicesRes, clientsRes, expensesRes, receiptsRes] = await Promise.all([
     supabase.from('tasks').select('*'),
     supabase.from('events').select('*'),
     supabase.from('invoices').select('*, client:clients(name), items:invoice_items(*)'),
     supabase.from('clients').select('id, name').order('name'),
     supabase.from('expenses').select('*'),
+    supabase.from('expense_receipts').select('*').order('created_at'),
   ]);
   const [tasks, events, invoices, clients] = [tasksRes, eventsRes, invoicesRes, clientsRes].map(check);
-
-  // A missing expenses table shouldn't break the rest of the app.
-  const expensesMissing = expensesRes.error?.code === TABLE_MISSING;
-  const expenses = expensesMissing ? [] : check(expensesRes);
+  const [expenses, expensesMissing] = optionalTable(expensesRes);
+  const [receipts, receiptsMissing] = optionalTable(receiptsRes);
 
   return {
     tasks: tasks.map(taskFromRow),
@@ -151,6 +162,8 @@ export async function fetchAll() {
     clients,
     expenses: expenses.map(expenseFromRow),
     expensesMissing,
+    receipts: receipts.map(receiptFromRow),
+    receiptsMissing,
   };
 }
 
@@ -161,7 +174,53 @@ export const insertExpense = async (expense) =>
 export const updateExpense = async (expense) =>
   check(await supabase.from('expenses').update(expenseToRow(expense)).eq('id', expense.id));
 
-export const deleteExpense = async (id) => check(await supabase.from('expenses').delete().eq('id', id));
+// Removes the expense's receipt files too (the receipt rows go with the expense via cascade).
+export async function deleteExpense(id, receiptPaths = []) {
+  if (receiptPaths.length) await supabase.storage.from(RECEIPTS_BUCKET).remove(receiptPaths);
+  check(await supabase.from('expenses').delete().eq('id', id));
+}
+
+// ---------- Expense receipts (see supabase/migrations/0005_expense_receipts.sql) ----------
+const RECEIPTS_BUCKET = 'receipts';
+
+export const RECEIPT_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/heic', 'image/heif', 'application/pdf'];
+export const RECEIPT_MAX_BYTES = 10 * 1024 * 1024;
+
+const safeFileName = (name) => name.replace(/[^a-zA-Z0-9._-]+/g, '_').slice(-80) || 'receipt';
+
+// Uploads one file and records it against the expense. Returns the new receipt.
+export async function uploadReceipt(expenseId, file) {
+  // Some systems leave HEIC files without a type; fall back on the extension.
+  const type = file.type || (/\.hei[cf]$/i.test(file.name) ? 'image/heic' : '');
+  if (!RECEIPT_TYPES.includes(type)) throw new Error(`${file.name}: only photos (JPG, PNG, WebP, HEIC) and PDFs can be attached.`);
+  if (file.size > RECEIPT_MAX_BYTES) throw new Error(`${file.name} is larger than 10 MB.`);
+
+  const { data: auth } = await supabase.auth.getSession();
+  const userId = auth.session?.user?.id;
+  const path = `${userId}/${expenseId}/${crypto.randomUUID()}-${safeFileName(file.name)}`;
+
+  check(await supabase.storage.from(RECEIPTS_BUCKET).upload(path, file, { contentType: type }));
+  const row = check(
+    await supabase
+      .from('expense_receipts')
+      .insert({ expense_id: expenseId, path, file_name: file.name, mime_type: type, size_bytes: file.size })
+      .select()
+      .single(),
+  );
+  return receiptFromRow(row);
+}
+
+export async function deleteReceipt(receipt) {
+  await supabase.storage.from(RECEIPTS_BUCKET).remove([receipt.path]);
+  check(await supabase.from('expense_receipts').delete().eq('id', receipt.id));
+}
+
+// Short-lived links for viewing private receipt files. Returns { [path]: url }.
+export async function receiptUrls(paths, seconds = 600) {
+  if (!paths.length) return {};
+  const data = check(await supabase.storage.from(RECEIPTS_BUCKET).createSignedUrls(paths, seconds));
+  return Object.fromEntries(data.filter((d) => d.signedUrl).map((d) => [d.path, d.signedUrl]));
+}
 
 // ---------- Tasks & events ----------
 export const insertTask = async (task) => check(await supabase.from('tasks').insert(taskToRow(task)));

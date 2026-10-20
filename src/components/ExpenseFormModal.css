@@ -1,0 +1,135 @@
+.receipts {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px;
+  border-radius: 10px;
+  transition: background 0.12s ease;
+}
+
+.receipts--dragging {
+  background: var(--green-soft);
+  outline: 2px dashed var(--green);
+}
+
+.receipts__label {
+  font-size: 9.5px;
+  font-weight: 500;
+}
+
+.receipts__note {
+  font-size: 10px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.receipts__list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.receipts__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 6px 6px 6px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.receipts__thumb {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #f6f2f6;
+  color: var(--primary);
+}
+
+.receipts__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.receipts__meta {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  gap: 2px;
+  font-size: 10px;
+}
+
+.receipts__meta a {
+  overflow: hidden;
+  font-weight: 500;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.receipts__meta a:hover {
+  text-decoration: underline;
+}
+
+.receipts__meta span {
+  color: var(--muted);
+}
+
+.receipts__remove {
+  width: 26px;
+  height: 26px;
+  color: var(--muted);
+}
+
+.receipts__add {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 12px;
+  border: 1px dashed #cfcfcf;
+  border-radius: 10px;
+  background: #fbf8fb;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--primary);
+  text-align: left;
+}
+
+.receipts__add span {
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.receipts__add:hover:not(:disabled) {
+  border-color: var(--primary);
+}
+
+.receipts__add:disabled,
+.receipts__remove:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.receipts__error {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--danger-soft);
+  color: #b33d3d;
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+
+.modal__actions .btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
