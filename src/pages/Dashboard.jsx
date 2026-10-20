@@ -7,18 +7,18 @@ import ItemEditor, { selectionFor } from '../components/ItemEditor';
 import WeekRow from '../components/WeekRow';
 import { EVENT_CATEGORIES } from '../data/categories';
 import { startOfWeek, todayKey } from '../utils/date';
+import { CHART_MONTHS, netForWindow } from '../utils/finance';
 import { formatMoney } from '../utils/money';
 import { byStartTime, calendarItems, taskState } from '../utils/tasks';
 import './Dashboard.css';
 
-const ACCOUNT_BALANCE = 138889.12; // TODO: comes from Banking once it exists
-
 export default function Dashboard() {
-  const { events, tasks, invoices, toggleTask, loadSampleData } = useAppData();
+  const { events, tasks, invoices, expenses, toggleTask, loadSampleData } = useAppData();
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('');
   const [seeding, setSeeding] = useState(false);
   const [selection, setSelection] = useState(null); // task or event being edited
+  const net = netForWindow(invoices, expenses);
   const isEmpty = events.length === 0 && tasks.length === 0 && invoices.length === 0;
 
   const seed = async () => {
@@ -83,8 +83,8 @@ export default function Dashboard() {
               </span>
             </div>
             <div className="balance">
-              <span>Account Balance:</span>
-              <strong>{formatMoney(ACCOUNT_BALANCE).replace('R', 'R ')}</strong>
+              <span>Net ({CHART_MONTHS} months):</span>
+              <strong>{(net < 0 ? '−' : '') + formatMoney(Math.abs(net)).replace('R', 'R ')}</strong>
             </div>
           </footer>
         </section>
