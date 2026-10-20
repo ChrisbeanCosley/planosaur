@@ -1,28 +1,28 @@
 .week-row {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  column-gap: 26px;
+  column-gap: 17.5px;
 }
 
 .week-day {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  padding: 0 0 24px;
+  padding: 0 0 16px;
 }
 
 .week-day__label {
-  padding-bottom: 42px;
-  border-bottom: 2px solid #c9c4ca;
-  font-size: 16px;
+  padding-bottom: 28px;
+  border-bottom: 1.5px solid #c9c4ca;
+  font-size: 10.5px;
   font-weight: 500;
   letter-spacing: 0.6px;
   color: var(--text);
 }
 
 .week-day__number {
-  margin: 14px 0 18px;
-  font-size: 32px;
+  margin: 9.5px 0 12px;
+  font-size: 21.5px;
   font-weight: 500;
   color: var(--text);
 }
@@ -30,33 +30,33 @@
 .week-day__events {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 12px;
 }
 
 .week-day__more {
   align-self: flex-start;
-  margin-left: 20px;
+  margin-left: 13.5px;
 }
 
 /* Today gets a tinted column and an accent line, like the designs */
 .week-day--today {
-  margin: 0 -10px;
-  padding: 0 10px 24px;
-  background: linear-gradient(180deg, transparent 0, transparent 60px, var(--highlight) 60px);
+  margin: 0 -6.5px;
+  padding: 0 6.5px 16px;
+  background: linear-gradient(180deg, transparent 0, transparent 40px, var(--highlight) 40px);
 }
 
 .week-day--today .week-day__label {
   color: #b5338e;
-  border-bottom: 3px solid #b5338e;
+  border-bottom: 2px solid #b5338e;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 733px) {
   .week-row {
-    column-gap: 12px;
+    column-gap: 8px;
   }
 
   .event-card {
-    padding: 10px;
-    font-size: 13px;
+    padding: 6.5px;
+    font-size: 8.5px;
   }
 }

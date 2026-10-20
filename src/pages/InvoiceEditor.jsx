@@ -81,23 +81,23 @@ export default function InvoiceEditor() {
         <h1 className="page-title">{existing ? invoice.number : 'New Invoice'}</h1>
         <div className="invoice-editor__actions no-print">
           <button type="button" className="btn btn--pink" onClick={() => window.print()}>
-            <Download size={22} strokeWidth={1.8} /> Download Invoice
+            <Download size={15} strokeWidth={1.8} /> Download Invoice
           </button>
           <button type="button" className="btn btn--danger" onClick={remove}>
-            <Trash size={22} strokeWidth={1.8} /> Delete Invoice
+            <Trash size={15} strokeWidth={1.8} /> Delete Invoice
           </button>
           <button type="button" className="btn" onClick={save}>
-            <Save size={22} strokeWidth={1.8} /> Save Invoice
+            <Save size={15} strokeWidth={1.8} /> Save Invoice
           </button>
           <button
             type="button"
             className="btn btn--green"
             onClick={() => window.alert('Invoice templates are coming soon.')}
           >
-            <Pencil size={22} strokeWidth={1.8} /> Edit Invoice Template
+            <Pencil size={15} strokeWidth={1.8} /> Edit Invoice Template
           </button>
           <button type="button" className="icon-button" aria-label="Invoice options">
-            <SlidersHorizontal size={32} strokeWidth={1.4} />
+            <SlidersHorizontal size={21} strokeWidth={1.4} />
           </button>
         </div>
       </header>
@@ -123,13 +123,13 @@ export default function InvoiceEditor() {
               <option key={c} value={c} />
             ))}
           </datalist>
-          <Search size={26} strokeWidth={1.8} className="invoice-form__icon" />
+          <Search size={17} strokeWidth={1.8} className="invoice-form__icon" />
         </div>
 
         <label htmlFor="number">Invoice No.</label>
         <div className="invoice-form__wide">
           <input id="number" className="field" value={invoice.number} onChange={set('number')} />
-          <Settings size={26} className="invoice-form__icon" fill="#666" stroke="#fff" />
+          <Settings size={17} className="invoice-form__icon" fill="#666" stroke="#fff" />
         </div>
 
         <label htmlFor="order">Order No.</label>
@@ -231,7 +231,7 @@ export default function InvoiceEditor() {
                       onClick={() => removeLine(item.id)}
                       aria-label="Remove line"
                     >
-                      <X size={18} />
+                      <X size={12} />
                     </button>
                   )}
                 </td>
@@ -243,7 +243,7 @@ export default function InvoiceEditor() {
 
       <div className="invoice-editor__bottom">
         <button type="button" className="btn no-print" onClick={addLine}>
-          <Plus size={24} strokeWidth={1.8} /> Add another line
+          <Plus size={16} strokeWidth={1.8} /> Add another line
         </button>
 
         <section className="totals">

@@ -21,7 +21,7 @@ export default function Modal({ title, onClose, children }) {
         <header className="modal__header">
           <h2>{title}</h2>
           <button type="button" className="icon-button" onClick={onClose} aria-label="Close">
-            <X size={22} />
+            <X size={15} />
           </button>
         </header>
         {children}

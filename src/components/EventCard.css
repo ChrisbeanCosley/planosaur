@@ -1,8 +1,8 @@
 .event-card {
-  padding: 16px 18px;
-  border-radius: 16px;
+  padding: 10.5px 12px;
+  border-radius: 10.5px;
   color: #fff;
-  font-size: 15px;
+  font-size: 10px;
   font-weight: 500;
   line-height: 1.25;
   letter-spacing: 0.3px;
@@ -26,18 +26,18 @@
 }
 
 .event-card--clickable:focus-visible {
-  outline: 3px solid var(--primary);
-  outline-offset: 2px;
+  outline: 2px solid var(--primary);
+  outline-offset: 1.5px;
 }
 
 /* Tasks get a dashed inner outline and a tick icon so they read differently from events */
 .event-card--task {
-  box-shadow: var(--shadow-sm), inset 0 0 0 2px rgba(255, 255, 255, 0.55);
+  box-shadow: var(--shadow-sm), inset 0 0 0 1.5px rgba(255, 255, 255, 0.55);
 }
 
 .event-card__task-icon {
-  margin-right: 6px;
-  vertical-align: -2px;
+  margin-right: 4px;
+  vertical-align: -1.5px;
 }
 
 .event-card--done {
@@ -51,6 +51,6 @@
 .event-card__person {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 8px;
+  gap: 5.5px;
+  margin-top: 5.5px;
 }

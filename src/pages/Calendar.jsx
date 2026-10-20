@@ -38,7 +38,7 @@ export default function Calendar() {
         <div className="calendar__nav">
           <h2>{formatMonthYear(weekStart)}</h2>
           <button type="button" className="icon-button" onClick={() => shift(-WEEKS_SHOWN)} aria-label="Previous weeks">
-            <ChevronLeft size={28} strokeWidth={1.6} />
+            <ChevronLeft size={19} strokeWidth={1.6} />
           </button>
           <button
             type="button"
@@ -48,13 +48,13 @@ export default function Calendar() {
             title="Today"
           />
           <button type="button" className="icon-button" onClick={() => shift(WEEKS_SHOWN)} aria-label="Next weeks">
-            <ChevronRight size={28} strokeWidth={1.6} />
+            <ChevronRight size={19} strokeWidth={1.6} />
           </button>
         </div>
         <div className="toolbar__actions">
           <SearchToggle value={query} onChange={setQuery} placeholder="Search events & tasks" />
           <button type="button" className="btn" onClick={() => setAdding(true)}>
-            <Plus size={24} strokeWidth={1.8} />
+            <Plus size={16} strokeWidth={1.8} />
             Add Event
           </button>
           <FilterMenu

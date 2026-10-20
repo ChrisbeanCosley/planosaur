@@ -2,45 +2,45 @@
   display: grid;
   place-items: center;
   min-height: 100vh;
-  padding: 24px;
+  padding: 16px;
   background: linear-gradient(160deg, #e0609d 0%, #b26dc6 55%, #8a7bea 100%);
 }
 
 .login__card {
-  width: min(440px, 100%);
-  padding: 40px 44px;
+  width: min(293.5px, 100%);
+  padding: 26.5px 29.5px;
   text-align: center;
 }
 
 .login__logo {
-  width: 110px;
+  width: 73.5px;
 }
 
 .login__brand {
-  margin-top: 6px;
-  font-size: 15px;
+  margin-top: 4px;
+  font-size: 10px;
   font-weight: 600;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
   color: var(--primary);
 }
 
 .login__card h1 {
-  margin: 18px 0 26px;
-  font-size: 28px;
+  margin: 12px 0 17.5px;
+  font-size: 18.5px;
   font-weight: 500;
 }
 
 .login form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10.5px;
   text-align: left;
 }
 
 .login__submit {
   width: 100%;
-  margin-top: 6px;
+  margin-top: 4px;
 }
 
 .login__submit:disabled {
@@ -49,9 +49,9 @@
 }
 
 .login__message {
-  padding: 12px 16px;
-  border-radius: 12px;
-  font-size: 14px;
+  padding: 8px 10.5px;
+  border-radius: 8px;
+  font-size: 9.5px;
   line-height: 1.4;
 }
 
@@ -69,12 +69,12 @@
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 22px;
-  font-size: 14px;
+  gap: 6.5px;
+  margin-top: 14.5px;
+  font-size: 9.5px;
 }
 
 .login__switch .link-button {
-  font-size: 14px;
+  font-size: 9.5px;
   color: var(--primary);
 }

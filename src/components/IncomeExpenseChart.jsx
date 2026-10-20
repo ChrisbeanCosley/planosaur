@@ -33,18 +33,19 @@ function buildData() {
 }
 
 const data = buildData();
-const axisTick = { fontSize: 10, fill: '#8a8a8a' };
+const axisTick = { fontSize: 7, fill: '#8a8a8a' };
 
 export default function IncomeExpenseChart() {
   return (
-    <ResponsiveContainer width="100%" height={360}>
-      <ComposedChart data={data} margin={{ top: 10, right: 10, bottom: 0, left: -18 }} barGap={10}>
+    <ResponsiveContainer width="100%" height={240}>
+      <ComposedChart data={data} margin={{ top: 6.5, right: 6.5, bottom: 0, left: -24 }} barGap={6.5}>
         <CartesianGrid stroke="#ececec" vertical={false} />
         {/* Keyed by index: repeated blank labels would otherwise collapse into one category */}
         <XAxis
           dataKey="index"
           interval={0}
-          tickFormatter={(i) => data[i]?.label ?? ''}           tick={axisTick}
+          tickFormatter={(i) => data[i]?.label ?? ''}
+          tick={axisTick}
           tickLine={false}
           axisLine={{ stroke: '#e3e3e3' }}
         />
@@ -59,12 +60,12 @@ export default function IncomeExpenseChart() {
         <Tooltip
           formatter={(value, name) => [formatMoney(value * 1000), name]}
           labelFormatter={() => ''}
-          contentStyle={{ borderRadius: 12, border: 'none', boxShadow: 'var(--shadow)' }}
+          contentStyle={{ borderRadius: 8, border: 'none', fontSize: 10, boxShadow: 'var(--shadow)' }}
         />
-        <Bar dataKey="incomeBar" name="Income (month)" fill="var(--pink)" barSize={9} radius={[5, 5, 0, 0]} />
-        <Bar dataKey="expenseBar" name="Expense (month)" fill="var(--purple)" barSize={9} radius={[5, 5, 0, 0]} />
-        <Line type="linear" dataKey="income" name="Income" stroke="var(--pink)" strokeWidth={2} dot={false} />
-        <Line type="linear" dataKey="expense" name="Expense" stroke="var(--purple)" strokeWidth={2} dot={false} />
+        <Bar dataKey="incomeBar" name="Income (month)" fill="var(--pink)" barSize={6} radius={[3.5, 3.5, 0, 0]} />
+        <Bar dataKey="expenseBar" name="Expense (month)" fill="var(--purple)" barSize={6} radius={[3.5, 3.5, 0, 0]} />
+        <Line type="linear" dataKey="income" name="Income" stroke="var(--pink)" strokeWidth={1.5} dot={false} />
+        <Line type="linear" dataKey="expense" name="Expense" stroke="var(--purple)" strokeWidth={1.5} dot={false} />
       </ComposedChart>
     </ResponsiveContainer>
   );

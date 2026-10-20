@@ -48,7 +48,7 @@ export default function Sidebar() {
             to={to}
             className={({ isActive }) => `sidebar__link${isActive ? ' sidebar__link--active' : ''}`}
           >
-            <Icon size={26} strokeWidth={1.6} />
+            <Icon size={17} strokeWidth={1.6} />
             <span>{label}</span>
           </NavLink>
         ))}
@@ -57,7 +57,7 @@ export default function Sidebar() {
       <hr className="sidebar__divider" />
 
       <button type="button" className="sidebar__link sidebar__signout" onClick={signOut}>
-        <LogOut size={24} strokeWidth={1.6} />
+        <LogOut size={16} strokeWidth={1.6} />
         <span>Sign out</span>
       </button>
 

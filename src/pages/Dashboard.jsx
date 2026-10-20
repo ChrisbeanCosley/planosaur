@@ -44,7 +44,7 @@ export default function Dashboard() {
       <header className="dashboard__header">
         <h1 className="page-title">Dashboard</h1>
         <div className="dashboard__search">
-          <Search size={24} strokeWidth={1.8} />
+          <Search size={16} strokeWidth={1.8} />
           <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search" aria-label="Search" />
           <select value={category} onChange={(e) => setCategory(e.target.value)} aria-label="Filter events">
             <option value="">Filter</option>

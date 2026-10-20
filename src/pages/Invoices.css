@@ -1,20 +1,20 @@
 .invoices__toolbar {
-  margin: 46px 0 30px;
+  margin: 30.5px 0 20px;
 }
 
 .invoices__tabs {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 32px;
-  padding-left: 20px;
+  gap: 5.5px 21.5px;
+  padding-left: 13.5px;
 }
 
 .invoices__tabs button {
-  padding: 4px 0;
+  padding: 2.5px 0;
   border: none;
-  border-bottom: 2px solid transparent;
+  border-bottom: 1.5px solid transparent;
   background: none;
-  font-size: 16px;
+  font-size: 10.5px;
   font-weight: 500;
   letter-spacing: 0.3px;
   color: var(--text);
@@ -29,8 +29,8 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  gap: 16px 40px;
-  padding: 22px 80px 18px 20px;
+  gap: 10.5px 26.5px;
+  padding: 14.5px 53.5px 12px 13.5px;
   border-radius: var(--radius);
   background: #f8e4f8;
 }
@@ -38,17 +38,17 @@
 .invoices__stats div {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6.5px;
 }
 
 .invoices__stats span {
-  font-size: 15px;
+  font-size: 10px;
   font-weight: 500;
   letter-spacing: 0.3px;
 }
 
 .invoices__stats strong {
-  font-size: 20px;
+  font-size: 13.5px;
   font-weight: 500;
   color: #b5338e;
 }
@@ -56,9 +56,9 @@
 .invoices__manage {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin: 28px 0 24px 20px;
-  font-size: 16px;
+  gap: 8px;
+  margin: 18.5px 0 16px 13.5px;
+  font-size: 10.5px;
   font-weight: 500;
 }
 
@@ -70,11 +70,11 @@
 .invoices__table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 16px;
+  font-size: 10.5px;
 }
 
 .invoices__table th {
-  padding: 0 12px 40px;
+  padding: 0 8px 26.5px;
   text-align: left;
   font-weight: 400;
   color: var(--muted);
@@ -82,7 +82,7 @@
 }
 
 .invoices__table td {
-  padding: 30px 12px;
+  padding: 20px 8px;
   border-bottom: 1px solid var(--line);
   font-weight: 500;
   letter-spacing: 0.4px;
@@ -90,8 +90,8 @@
 
 .invoices__table th:first-child,
 .invoices__table td:first-child {
-  width: 70px;
-  padding-left: 24px;
+  width: 46.5px;
+  padding-left: 16px;
 }
 
 .invoices__table tbody tr {
@@ -105,10 +105,10 @@
 
 .round-check {
   appearance: none;
-  width: 20px;
-  height: 20px;
+  width: 13.5px;
+  height: 13.5px;
   margin: 0;
-  border: 1.5px solid #6b6b6b;
+  border: 1px solid #6b6b6b;
   border-radius: 50%;
   cursor: pointer;
   vertical-align: middle;
@@ -116,7 +116,7 @@
 
 .round-check:checked {
   border-color: var(--primary);
-  background: radial-gradient(circle, var(--primary) 0 5px, transparent 5.5px);
+  background: radial-gradient(circle, var(--primary) 0 3.5px, transparent 3.5px);
 }
 
 .status {
@@ -144,11 +144,11 @@
   color: var(--text);
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 733px) {
   .invoices__table th,
   .invoices__table td {
-    padding-left: 6px;
-    padding-right: 6px;
-    font-size: 14px;
+    padding-left: 4px;
+    padding-right: 4px;
+    font-size: 9.5px;
   }
 }

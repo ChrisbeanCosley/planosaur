@@ -1,22 +1,22 @@
 .calendar__toolbar {
-  margin: 56px 0 44px;
+  margin: 37.5px 0 29.5px;
 }
 
 .calendar__nav {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 .calendar__nav h2 {
-  margin-right: 30px;
-  font-size: 32px;
+  margin-right: 20px;
+  font-size: 21.5px;
   font-weight: 500;
 }
 
 .calendar__today {
-  width: 10px;
-  height: 10px;
+  width: 6.5px;
+  height: 6.5px;
   padding: 0;
   border: none;
   border-radius: 50%;
@@ -26,5 +26,5 @@
 .calendar__weeks {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
 }

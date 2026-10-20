@@ -1,12 +1,12 @@
 .tasks__toolbar {
-  margin: 52px 0 70px;
+  margin: 34.5px 0 46.5px;
 }
 
 .tasks__dates {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 30px;
+  gap: 20px;
 }
 
 .tasks__dates > button:not(.icon-button) {
@@ -14,7 +14,7 @@
   padding: 0;
   border: none;
   background: none;
-  font-size: 36px;
+  font-size: 24px;
   font-weight: 500;
   color: #b0b0b0;
 }
@@ -27,10 +27,10 @@
   content: '';
   position: absolute;
   left: 50%;
-  bottom: -12px;
-  width: 30px;
-  height: 3px;
-  border-radius: 2px;
+  bottom: -8px;
+  width: 20px;
+  height: 2px;
+  border-radius: 1.5px;
   background: var(--text);
   transform: translateX(-50%);
 }
@@ -47,34 +47,34 @@
 
 .tasks__columns {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 30px 108px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px 72px;
 }
 
 .tasks__column {
   display: flex;
   flex-direction: column;
-  gap: 26px;
+  gap: 17.5px;
 }
 
 .tasks__column-title {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin: 0 0 2px 22px;
-  font-size: 20px;
+  gap: 10.5px;
+  margin: 0 0 1.5px 14.5px;
+  font-size: 13.5px;
   font-weight: 500;
   letter-spacing: 0.6px;
 }
 
 .tasks__column-title span {
-  width: 18px;
-  height: 18px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
 }
 
-@media (max-width: 1400px) {
+@media (max-width: 933px) {
   .tasks__columns {
-    column-gap: 40px;
+    column-gap: 26.5px;
   }
 }

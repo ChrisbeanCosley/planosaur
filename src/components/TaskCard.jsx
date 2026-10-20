@@ -26,7 +26,7 @@ export default function TaskCard({ task, state = 'open', onToggle, onOpen }) {
         }}
         aria-label={task.done ? `Mark "${task.title}" as not done` : `Mark "${task.title}" as done`}
       >
-        <Check size={28} strokeWidth={2} />
+        <Check size={19} strokeWidth={2} />
       </button>
       <Body className="task-card__body" {...(onOpen ? { type: 'button', title: 'Edit task' } : {})}>
         <h3 className="task-card__title">{task.title}</h3>

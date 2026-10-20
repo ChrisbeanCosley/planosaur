@@ -26,7 +26,7 @@ export default function FilterMenu({ title = 'Filter', options, selected, onChan
         aria-label={title}
         aria-expanded={open}
       >
-        <SlidersHorizontal size={32} strokeWidth={1.4} />
+        <SlidersHorizontal size={21} strokeWidth={1.4} />
       </button>
       {open && (
         <div className="popover card">

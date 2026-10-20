@@ -1,11 +1,11 @@
 .search-toggle {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 5.5px;
 }
 
 .search-toggle__input {
-  width: 220px;
+  width: 146.5px;
 }
 
 .filter-menu {
@@ -14,18 +14,18 @@
 
 .popover {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 5.5px);
   right: 0;
   z-index: 20;
-  min-width: 220px;
-  padding: 16px 18px;
+  min-width: 146.5px;
+  padding: 10.5px 12px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6.5px;
 }
 
 .popover__title {
-  font-size: 13px;
+  font-size: 8.5px;
   font-weight: 500;
   color: var(--muted);
   text-transform: uppercase;
@@ -35,8 +35,8 @@
 .popover__option {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 15px;
+  gap: 6.5px;
+  font-size: 10px;
   cursor: pointer;
 }
 
@@ -45,23 +45,23 @@
 }
 
 .popover__dot {
-  width: 12px;
-  height: 12px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
 }
 
 .popover__clear {
   align-self: flex-start;
-  font-size: 14px;
+  font-size: 9.5px;
 }
 
 .popover__item {
-  padding: 8px 4px;
+  padding: 5.5px 2.5px;
   border: none;
   background: none;
   text-align: left;
-  font-size: 15px;
-  border-radius: 8px;
+  font-size: 10px;
+  border-radius: 5.5px;
 }
 
 .popover__item:hover:not(:disabled) {

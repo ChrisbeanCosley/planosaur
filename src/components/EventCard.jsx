@@ -17,13 +17,13 @@ export default function EventCard({ event, onClick }) {
       style={{ background: category.color }}
     >
       <div className="event-card__title">
-        {isTask && <SquareCheckBig size={16} strokeWidth={2} className="event-card__task-icon" aria-label="Task" />}
+        {isTask && <SquareCheckBig size={11} strokeWidth={2} className="event-card__task-icon" aria-label="Task" />}
         {event.title}
       </div>
       {time && <div>{time}</div>}
       {event.person && (
         <div className="event-card__person">
-          <User size={18} strokeWidth={1.6} />
+          <User size={12} strokeWidth={1.6} />
           {event.person}
         </div>
       )}

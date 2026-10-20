@@ -23,13 +23,14 @@
   --card: #ffffff;
   --highlight: #f7edf7;
 
-  --radius: 22px;
-  --radius-sm: 14px;
-  --shadow: 0 6px 20px rgba(120, 70, 140, 0.12);
-  --shadow-sm: 0 3px 10px rgba(120, 70, 140, 0.1);
+  --radius: 14.5px;
+  --radius-sm: 9.5px;
+  --shadow: 0 4px 13.5px rgba(120, 70, 140, 0.12);
+  --shadow-sm: 0 2px 6.5px rgba(120, 70, 140, 0.1);
 
-  --sidebar-width: 274px;
+  --sidebar-width: 182.5px;
 
+  font-size: 10.5px; /* base for any text without its own size (2/3 of the 16px browser default) */
   font-family: 'Rubik', system-ui, -apple-system, 'Segoe UI', sans-serif;
   color: var(--text);
   background: var(--bg);
@@ -70,7 +71,7 @@ a {
 
 /* ---------- Page header ---------- */
 .page-title {
-  font-size: 44px;
+  font-size: 29.5px;
   font-weight: 500;
   color: var(--text);
   letter-spacing: 0.5px;
@@ -79,7 +80,7 @@ a {
 .page-header {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 16px;
   flex-wrap: wrap;
 }
 
@@ -87,14 +88,14 @@ a {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
+  gap: 16px;
   flex-wrap: wrap;
 }
 
 .toolbar__actions {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 16px;
   margin-left: auto;
 }
 
@@ -103,12 +104,12 @@ a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
-  height: 50px;
-  padding: 0 28px;
+  gap: 9.5px;
+  height: 33.5px;
+  padding: 0 18.5px;
   border: none;
-  border-radius: 16px;
-  font-size: 16px;
+  border-radius: 10.5px;
+  font-size: 10.5px;
   font-weight: 500;
   letter-spacing: 0.4px;
   color: #fff;
@@ -149,11 +150,11 @@ a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: 29.5px;
+  height: 29.5px;
   padding: 0;
   border: none;
-  border-radius: 12px;
+  border-radius: 8px;
   background: transparent;
   color: var(--text);
 }
@@ -173,7 +174,7 @@ a {
   background: none;
   color: var(--text);
   text-decoration: underline;
-  font-size: 16px;
+  font-size: 10.5px;
   font-weight: 500;
 }
 
@@ -185,7 +186,7 @@ a {
 }
 
 .card__title {
-  font-size: 17px;
+  font-size: 11.5px;
   font-weight: 500;
   color: var(--text-strong);
 }
@@ -193,12 +194,12 @@ a {
 /* ---------- Form fields ---------- */
 .field {
   width: 100%;
-  height: 42px;
-  padding: 0 26px;
+  height: 28px;
+  padding: 0 17.5px;
   border: 1px solid #cfcfcf;
-  border-radius: 999px;
+  border-radius: 666px;
   background: #fff;
-  font-size: 15px;
+  font-size: 10px;
   font-weight: 500;
   color: var(--text);
   outline: none;
@@ -206,7 +207,7 @@ a {
 
 .field:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(142, 68, 152, 0.12);
+  box-shadow: 0 0 0 2px rgba(142, 68, 152, 0.12);
 }
 
 .field::placeholder {
@@ -215,18 +216,18 @@ a {
 
 select.field {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' fill='none' stroke='%23777' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' fill='none' stroke='%23777' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 18px center;
-  padding-right: 52px;
+  background-position: right 12px center;
+  padding-right: 34.5px;
 }
 
 /* ---------- Divider with label (DONE / OVERDUE) ---------- */
 .label-divider {
   display: flex;
   align-items: center;
-  gap: 28px;
-  font-size: 14px;
+  gap: 18.5px;
+  font-size: 9.5px;
   color: var(--muted);
   letter-spacing: 0.4px;
 }
@@ -244,9 +245,9 @@ select.field {
 }
 
 .empty-state {
-  padding: 24px 0;
+  padding: 16px 0;
   color: var(--muted);
-  font-size: 15px;
+  font-size: 10px;
 }
 
 @media print {

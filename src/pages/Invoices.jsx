@@ -92,7 +92,7 @@ export default function Invoices() {
         <div className="toolbar__actions">
           <SearchToggle value={query} onChange={setQuery} placeholder="Client or number" />
           <button type="button" className="btn" onClick={() => navigate('/invoices/new')}>
-            <Plus size={24} strokeWidth={1.8} />
+            <Plus size={16} strokeWidth={1.8} />
             New Invoice
           </button>
           <FilterMenu
@@ -196,7 +196,7 @@ function BulkMenu({ count, archivedTab, onAction }) {
   return (
     <div className="filter-menu" ref={ref}>
       <button type="button" className="icon-button" onClick={() => setOpen((o) => !o)} aria-label="Manage invoices">
-        <Ellipsis size={24} />
+        <Ellipsis size={16} />
       </button>
       {open && (
         <div className="popover card popover--left">

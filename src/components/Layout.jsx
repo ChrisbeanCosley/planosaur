@@ -34,7 +34,7 @@ export default function Layout() {
               <div className="error-banner no-print" role="alert">
                 <span>Something didn’t save: {error}</span>
                 <button type="button" className="icon-button" onClick={clearError} aria-label="Dismiss">
-                  <X size={18} />
+                  <X size={12} />
                 </button>
               </div>
             )}

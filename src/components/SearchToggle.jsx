@@ -35,7 +35,7 @@ export default function SearchToggle({ value, onChange, placeholder = 'Search' }
         onClick={() => setOpen((o) => !o)}
         aria-label="Search"
       >
-        <Search size={26} strokeWidth={1.8} />
+        <Search size={17} strokeWidth={1.8} />
       </button>
     </div>
   );

@@ -55,7 +55,7 @@ export default function Tasks() {
             {dayLabel(addDays(date, 1))}
           </button>
           <button type="button" className="icon-button" onClick={openDatePicker} aria-label="Pick a date">
-            <CalendarDays size={28} strokeWidth={1.6} />
+            <CalendarDays size={19} strokeWidth={1.6} />
           </button>
           <input
             ref={dateInput}
@@ -70,7 +70,7 @@ export default function Tasks() {
         <div className="toolbar__actions">
           <SearchToggle value={query} onChange={setQuery} placeholder="Search tasks" />
           <button type="button" className="btn" onClick={() => setAdding(true)}>
-            <Plus size={24} strokeWidth={1.8} />
+            <Plus size={16} strokeWidth={1.8} />
             Add Task
           </button>
           <FilterMenu
