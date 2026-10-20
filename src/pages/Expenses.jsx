@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Paperclip, Plus } from 'lucide-react';
+import { Download, Paperclip, Plus } from 'lucide-react';
 import { useAppData } from '../context/AppDataContext';
 import ExpenseFormModal from '../components/ExpenseFormModal';
+import ExportReceiptsModal from '../components/ExportReceiptsModal';
 import FilterMenu from '../components/FilterMenu';
 import SearchToggle from '../components/SearchToggle';
 import { EXPENSE_CATEGORIES, toOptions } from '../data/categories';
@@ -33,11 +34,12 @@ const PERIODS = [
 ];
 
 export default function Expenses() {
-  const { expenses, expensesMissing, receipts } = useAppData();
+  const { expenses, expensesMissing, receipts, receiptsMissing } = useAppData();
   const [period, setPeriod] = useState('month');
   const [query, setQuery] = useState('');
   const [categories, setCategories] = useState([]);
   const [editing, setEditing] = useState(null); // expense being edited, 'new', or null
+  const [exporting, setExporting] = useState(false);
 
   const [from, to] = periodRange(period);
   const q = query.trim().toLowerCase();
@@ -98,6 +100,15 @@ export default function Expenses() {
         </nav>
         <div className="toolbar__actions">
           <SearchToggle value={query} onChange={setQuery} placeholder="Payee or description" />
+          <button
+            type="button"
+            className="btn btn--pink"
+            onClick={() => setExporting(true)}
+            disabled={expensesMissing || receiptsMissing}
+          >
+            <Download size={15} strokeWidth={1.8} />
+            Export receipts
+          </button>
           <button type="button" className="btn btn--green" onClick={() => setEditing('new')} disabled={expensesMissing}>
             <Plus size={16} strokeWidth={1.8} />
             Add Expense
@@ -191,6 +202,13 @@ export default function Expenses() {
         </tbody>
       </table>
 
+      {exporting && (
+        <ExportReceiptsModal
+          // Start on the month being viewed when that's last month; otherwise this month.
+          defaultMonth={period === 'lastMonth' ? periodRange('lastMonth')[0].slice(0, 7) : undefined}
+          onClose={() => setExporting(false)}
+        />
+      )}
       {editing && (
         <ExpenseFormModal
           key={editing === 'new' ? 'new' : editing.id}

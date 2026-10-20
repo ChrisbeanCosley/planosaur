@@ -215,6 +215,9 @@ export async function deleteReceipt(receipt) {
   check(await supabase.from('expense_receipts').delete().eq('id', receipt.id));
 }
 
+// The file itself, as a Blob (used by the monthly receipts export).
+export const downloadReceipt = async (path) => check(await supabase.storage.from(RECEIPTS_BUCKET).download(path));
+
 // Short-lived links for viewing private receipt files. Returns { [path]: url }.
 export async function receiptUrls(paths, seconds = 600) {
   if (!paths.length) return {};
