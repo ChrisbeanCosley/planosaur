@@ -4,7 +4,8 @@ import { formatTaskTime } from '../utils/tasks';
 import './TaskCard.css';
 
 // state: 'open' | 'done' | 'overdue'. Clicking the card (not the tick) calls onOpen to edit it.
-export default function TaskCard({ task, state = 'open', onToggle, onOpen }) {
+// compact: smaller version for narrow columns (e.g. the week view).
+export default function TaskCard({ task, state = 'open', onToggle, onOpen, compact = false }) {
   const category = TASK_CATEGORIES[task.category] ?? TASK_CATEGORIES.other;
   const accent = state === 'overdue' ? 'var(--danger)' : state === 'done' ? 'var(--green)' : category.color;
   const soft = state === 'overdue' ? '#ffc4cb' : state === 'done' ? 'var(--green)' : category.soft;
@@ -12,7 +13,7 @@ export default function TaskCard({ task, state = 'open', onToggle, onOpen }) {
 
   return (
     <article
-      className={`task-card task-card--${state}${onOpen ? ' task-card--clickable' : ''}`}
+      className={`task-card task-card--${state}${onOpen ? ' task-card--clickable' : ''}${compact ? ' task-card--compact' : ''}`}
       style={{ '--accent': accent, '--accent-soft': soft }}
       onClick={onOpen && (() => onOpen(task))}
     >

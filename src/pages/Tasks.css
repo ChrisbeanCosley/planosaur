@@ -2,6 +2,39 @@
   margin: 34.5px 0 46.5px;
 }
 
+.tasks__nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px 32px;
+}
+
+/* Day | Week segmented switch */
+.view-toggle {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 12px;
+  background: #f1e6f2;
+}
+
+.view-toggle button {
+  height: 28px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 9.5px;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  color: var(--text);
+}
+
+.view-toggle button.is-active {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
 .tasks__dates {
   position: relative;
   display: flex;
@@ -73,8 +106,111 @@
   border-radius: 50%;
 }
 
+/* ---------- Week view ---------- */
+.tasks__week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  column-gap: 12px;
+}
+
+.tasks__week-day {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 0 4px 16px;
+  border-radius: var(--radius-sm);
+}
+
+.tasks__week-day--today {
+  background: var(--highlight);
+}
+
+.tasks__week-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding: 8px 4px 8px 6px;
+  border-bottom: 1.5px solid #c9c4ca;
+}
+
+.tasks__week-day--today .tasks__week-header {
+  border-bottom: 2px solid #b5338e;
+}
+
+.tasks__week-label {
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.6px;
+}
+
+.tasks__week-day--today .tasks__week-label {
+  color: #b5338e;
+}
+
+.tasks__week-number {
+  margin-top: 4px;
+  font-size: 21.5px;
+  font-weight: 500;
+}
+
+.tasks__week-header .icon-button {
+  width: 26px;
+  height: 26px;
+  color: var(--muted);
+}
+
+.tasks__week-header .icon-button:hover {
+  color: var(--primary);
+}
+
+.tasks__week-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Tighter cards so they fit seven across */
+.tasks__week .task-card--compact {
+  gap: 8px;
+  padding: 10px 10px 10px 12px;
+}
+
+.tasks__week .task-card--compact .task-card__check {
+  width: 24px;
+  height: 24px;
+}
+
+.tasks__week .task-card--compact .task-card__check svg {
+  width: 13px;
+  height: 13px;
+}
+
+.tasks__week .task-card--compact .task-card__title {
+  font-size: 10.5px;
+  overflow-wrap: anywhere;
+}
+
+.tasks__week .task-card--compact .task-card__description {
+  margin-top: 3px;
+  font-size: 8.5px;
+}
+
+.tasks__week .task-card--compact .task-card__time {
+  margin-top: 5px;
+  font-size: 10px;
+}
+
 @media (max-width: 933px) {
   .tasks__columns {
     column-gap: 26.5px;
+  }
+}
+
+/* Too narrow for seven columns: stack the days */
+@media (max-width: 733px) {
+  .tasks__week {
+    grid-template-columns: 1fr;
+    row-gap: 12px;
   }
 }
