@@ -1,32 +1,21 @@
-// Builds a month's timesheet as a real Excel (.xlsx) file, in the browser.
+// Builds a timesheet for a date range as a real Excel (.xlsx) file, in the browser.
 // Sheet 1 "Timesheet": one row per finished entry, plus totals. Sheet 2 "By client": hours and amounts.
 import writeXlsxFile from 'write-excel-file/browser';
-import { durationSeconds, entryAmount, entryDateKey, timeOfDay } from '../utils/time';
+import { durationSeconds, entriesInRange, entryAmount, entryDateKey, timeOfDay } from '../utils/time';
 
 const HOURS = '0.00';
 const MONEY = '#,##0.00';
 const bold = (value) => ({ value, fontWeight: 'bold' });
 const num = (value, format, extra) => ({ value, type: Number, format, ...extra });
 
-const monthName = (month) => {
-  const [y, m] = month.split('-').map(Number);
-  return new Date(y, m - 1, 1).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
-};
-
-// Finished entries in the month ("YYYY-MM"), oldest first. Running timers are left out.
-export const monthEntries = (month, entries) =>
-  entries
-    .filter((t) => t.end && entryDateKey(t).startsWith(month))
-    .sort((a, b) => a.start.localeCompare(b.start));
-
 const hoursOf = (entry) => Math.round((durationSeconds(entry) / 3600) * 100) / 100;
 
-/** Returns { blob, fileName } for the month's timesheet. */
-export async function buildTimesheetXlsx(month, { entries, clients, invoices, ownerName }) {
-  const rows = monthEntries(month, entries);
+/** range: from monthRange() or customRange() in utils/time. Returns { blob, fileName }. */
+export async function buildTimesheetXlsx(range, { entries, clients, invoices, ownerName }) {
+  const rows = entriesInRange(entries, range);
   const clientName = (id) => clients.find((c) => c.id === id)?.name ?? '';
   const invoiceNumber = (id) => invoices.find((i) => i.id === id)?.number ?? '';
-  const title = `Timesheet – ${monthName(month)}${ownerName ? ` – ${ownerName}` : ''}`;
+  const title = `Timesheet – ${range.label}${ownerName ? ` – ${ownerName}` : ''}`;
 
   // ---- Sheet 1: every entry ----
   const header = ['Date', 'Day', 'Start', 'End', 'Hours', 'Client', 'Description', 'Billable', 'Rate (R/h)', 'Amount (R)', 'Invoice'];
@@ -101,7 +90,7 @@ export async function buildTimesheetXlsx(month, { entries, clients, invoices, ow
     },
   ]).toBlob();
 
-  return { blob, fileName: `Planosaur-timesheet-${month}.xlsx` };
+  return { blob, fileName: `Planosaur-timesheet-${range.fileSuffix}.xlsx` };
 }
 
 function round2(n) {

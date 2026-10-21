@@ -60,3 +60,35 @@ export function entryInvoiceItem(entry, id) {
     taxRate: 0,
   };
 }
+
+// ---------- Date ranges for exports ----------
+// A range is { from, to } as inclusive "YYYY-MM-DD" keys, plus a label and a file-name suffix.
+const longDate = (key) => {
+  const [y, m, d] = key.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+};
+
+// "2026-10" -> 1–31 October 2026.
+export function monthRange(month) {
+  const [y, m] = month.split('-').map(Number);
+  const last = new Date(y, m, 0).getDate();
+  return {
+    from: `${month}-01`,
+    to: `${month}-${String(last).padStart(2, '0')}`,
+    label: new Date(y, m - 1, 1).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }),
+    fileSuffix: month,
+  };
+}
+
+export const customRange = (from, to) => ({
+  from,
+  to,
+  label: from === to ? longDate(from) : `${longDate(from)} to ${longDate(to)}`,
+  fileSuffix: from === to ? from : `${from}_to_${to}`,
+});
+
+// Finished entries that started within the range, oldest first. Running timers are left out.
+export const entriesInRange = (entries, { from, to }) =>
+  entries
+    .filter((t) => t.end && entryDateKey(t) >= from && entryDateKey(t) <= to)
+    .sort((a, b) => a.start.localeCompare(b.start));

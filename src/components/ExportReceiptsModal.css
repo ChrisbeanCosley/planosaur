@@ -57,3 +57,7 @@
   color: #b33d3d;
   font-size: 10.5px;
 }
+
+.export__mode {
+  align-self: flex-start;
+}
