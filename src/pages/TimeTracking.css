@@ -266,3 +266,62 @@
     display: none;
   }
 }
+
+/* ---------- Month grid ---------- */
+.time__month {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 20px;
+  padding: 14px 16px 16px;
+}
+
+.time__month-label {
+  padding-bottom: 4px;
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.6px;
+  color: #8a8a8a;
+  text-align: center;
+}
+
+.time__month-day {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 52px;
+  padding: 6px 8px;
+  border: 1px solid #f1ecf2;
+  border-radius: 8px;
+  background: #fff;
+  text-align: left;
+  transition: border-color 0.12s ease;
+}
+
+.time__month-day:hover {
+  border-color: var(--primary);
+}
+
+/* Busier days get a stronger purple wash (--busy is 0.15–0.75) */
+.time__month-day.has-time {
+  border-color: transparent;
+  background: rgba(138, 123, 234, var(--busy));
+}
+
+.time__month-day.is-today {
+  outline: 2px solid #b5338e;
+  outline-offset: -2px;
+}
+
+.time__month-date {
+  font-size: 10.5px;
+  font-weight: 500;
+}
+
+.time__month-hours {
+  align-self: flex-end;
+  font-size: 11.5px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: #3f2f7a;
+}

@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Download } from 'lucide-react';
 import Modal, { FormRow } from './Modal';
 import { useAppData } from '../context/AppDataContext';
-import { buildReceiptsZip, monthSummary, saveBlob } from '../lib/exportReceipts';
+import { buildReceiptsZip, monthSummary } from '../lib/exportReceipts';
+import { saveBlob } from '../utils/download';
 import { formatMoney } from '../utils/money';
 import './ExportReceiptsModal.css';
 

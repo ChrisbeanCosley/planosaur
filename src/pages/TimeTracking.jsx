@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CircleDollarSign, FileText, Play, Plus, Square } from 'lucide-react';
+import { CircleDollarSign, Download, FileText, Play, Plus, Square } from 'lucide-react';
 import { useAppData } from '../context/AppDataContext';
 import TimeEntryModal from '../components/TimeEntryModal';
 import InvoiceTimeModal from '../components/InvoiceTimeModal';
-import { addDays, DAY_LABELS, fromKey, startOfWeek, todayKey, toKey, weekLabel } from '../utils/date';
+import ExportTimesheetModal from '../components/ExportTimesheetModal';
+import { addDays, DAY_LABELS, fromKey, startOfDay, startOfWeek, todayKey, toKey, weekLabel } from '../utils/date';
 import { formatMoney } from '../utils/money';
 import { durationSeconds, entryAmount, entryDateKey, formatClock, formatDuration, lastRate, timeOfDay } from '../utils/time';
 import './TimeTracking.css';
@@ -21,41 +22,76 @@ function useNow(active) {
   return now;
 }
 
+// "This month", or "September" (with the year when it isn't this year).
+function monthLabel(date) {
+  const now = new Date();
+  if (date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth()) return 'This month';
+  return date.toLocaleDateString('en-US', date.getFullYear() === now.getFullYear() ? { month: 'long' } : { month: 'short', year: 'numeric' });
+}
+
+const startOfMonth = (date) => new Date(date.getFullYear(), date.getMonth(), 1);
+const addMonths = (date, n) => new Date(date.getFullYear(), date.getMonth() + n, 1);
+
+// The date keys a period covers: Mon–Sun for a week, every day for a month.
+function periodKeys(view, anchor) {
+  if (view === 'week') {
+    const start = startOfWeek(anchor);
+    return DAY_LABELS.map((_, i) => toKey(addDays(start, i)));
+  }
+  const first = startOfMonth(anchor);
+  const days = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+  return Array.from({ length: days }, (_, i) => toKey(addDays(first, i)));
+}
+
 export default function TimeTracking() {
   const { timeEntries, timeEntriesMissing, clients, invoices } = useAppData();
-  const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date()));
-  const [editing, setEditing] = useState(null); // entry, 'new', or null
+  const [view, setView] = useState('week'); // 'week' | 'month'
+  const [anchor, setAnchor] = useState(() => startOfDay(new Date())); // any day in the period shown
+  const [editing, setEditing] = useState(null); // entry, { date } for a new one, or null
   const [invoicing, setInvoicing] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const running = timeEntries.find((t) => !t.end);
   const now = useNow(Boolean(running));
   const clientName = (id) => clients.find((c) => c.id === id)?.name;
 
-  const weekKeys = DAY_LABELS.map((_, i) => toKey(addDays(weekStart, i)));
-  const weekEntries = timeEntries.filter((t) => weekKeys.includes(entryDateKey(t)));
-  const totalSeconds = weekEntries.reduce((s, t) => s + durationSeconds(t, now), 0);
-  const billableSeconds = weekEntries.filter((t) => t.billable).reduce((s, t) => s + durationSeconds(t, now), 0);
+  const keys = periodKeys(view, anchor);
+  const keySet = new Set(keys);
+  const periodEntries = timeEntries.filter((t) => keySet.has(entryDateKey(t)));
+  const totalSeconds = periodEntries.reduce((s, t) => s + durationSeconds(t, now), 0);
+  const billableSeconds = periodEntries.filter((t) => t.billable).reduce((s, t) => s + durationSeconds(t, now), 0);
   // Already-invoiced time isn't counted: it's been billed.
-  const billableAmount = weekEntries.filter((t) => !t.invoiceId).reduce((s, t) => s + entryAmount(t, now), 0);
+  const billableAmount = periodEntries.filter((t) => !t.invoiceId).reduce((s, t) => s + entryAmount(t, now), 0);
 
   const stats = [
     { label: 'Total time', value: formatDuration(totalSeconds) },
     { label: 'Billable time', value: formatDuration(billableSeconds) },
     { label: 'Billable amount', value: formatMoney(billableAmount) },
-    { label: 'Entries', value: weekEntries.length },
+    { label: 'Entries', value: periodEntries.length },
   ];
 
   // Newest day first, newest entry first within a day; empty days are skipped.
-  const days = [...weekKeys]
+  const days = [...keys]
     .reverse()
     .map((key) => ({
       key,
-      entries: weekEntries.filter((t) => entryDateKey(t) === key).sort((a, b) => b.start.localeCompare(a.start)),
+      entries: periodEntries.filter((t) => entryDateKey(t) === key).sort((a, b) => b.start.localeCompare(a.start)),
     }))
     .filter((d) => d.entries.length > 0);
 
   const today = todayKey();
-  const defaultDate = weekKeys.includes(today) ? today : weekKeys[0];
+  const defaultDate = keySet.has(today) ? today : keys[0];
+
+  // Navigation steps a week or a month at a time.
+  const step = (n) => setAnchor((d) => (view === 'week' ? addDays(d, n * 7) : addMonths(d, n)));
+  const label = (n) =>
+    view === 'week' ? weekLabel(startOfWeek(addDays(anchor, n * 7))) : monthLabel(addMonths(anchor, n));
+
+  const openDay = (key) => {
+    const section = document.getElementById(`time-day-${key}`);
+    if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    else setEditing({ date: key }); // empty day: add time on it
+  };
 
   return (
     <div className="time">
@@ -74,23 +110,47 @@ export default function TimeTracking() {
       )}
 
       <div className="toolbar time__toolbar">
-        <div className="tasks__dates">
-          <button type="button" onClick={() => setWeekStart((d) => addDays(d, -7))}>
-            {weekLabel(addDays(weekStart, -7))}
-          </button>
-          <button type="button" className="tasks__date--current" onClick={() => setWeekStart(startOfWeek(new Date()))}>
-            {weekLabel(weekStart)}
-          </button>
-          <button type="button" onClick={() => setWeekStart((d) => addDays(d, 7))}>
-            {weekLabel(addDays(weekStart, 7))}
-          </button>
+        <div className="tasks__nav">
+          <div className="view-toggle" role="group" aria-label="View">
+            {['week', 'month'].map((v) => (
+              <button
+                key={v}
+                type="button"
+                className={view === v ? 'is-active' : ''}
+                aria-pressed={view === v}
+                onClick={() => setView(v)}
+              >
+                {v === 'week' ? 'Week' : 'Month'}
+              </button>
+            ))}
+          </div>
+          <div className="tasks__dates">
+            <button type="button" onClick={() => step(-1)}>
+              {label(-1)}
+            </button>
+            <button type="button" className="tasks__date--current" onClick={() => setAnchor(startOfDay(new Date()))}>
+              {label(0)}
+            </button>
+            <button type="button" onClick={() => step(1)}>
+              {label(1)}
+            </button>
+          </div>
         </div>
         <div className="toolbar__actions">
+          <button type="button" className="btn btn--pink" onClick={() => setExporting(true)} disabled={timeEntriesMissing}>
+            <Download size={15} strokeWidth={1.8} />
+            Export timesheet
+          </button>
           <button type="button" className="btn" onClick={() => setInvoicing(true)} disabled={timeEntriesMissing}>
             <FileText size={16} strokeWidth={1.8} />
             Create invoice
           </button>
-          <button type="button" className="btn btn--green" onClick={() => setEditing('new')} disabled={timeEntriesMissing}>
+          <button
+            type="button"
+            className="btn btn--green"
+            onClick={() => setEditing({ date: defaultDate })}
+            disabled={timeEntriesMissing}
+          >
             <Plus size={16} strokeWidth={1.8} />
             Add time
           </button>
@@ -106,13 +166,15 @@ export default function TimeTracking() {
         ))}
       </section>
 
+      {view === 'month' && <MonthGrid keys={keys} entries={periodEntries} now={now} onDay={openDay} />}
+
       <div className="time__days">
-        {days.length === 0 && <p className="empty-state">No time tracked this week.</p>}
+        {days.length === 0 && <p className="empty-state">No time tracked this {view}.</p>}
         {days.map(({ key, entries }) => {
           const date = fromKey(key);
           const dayTotal = entries.reduce((s, t) => s + durationSeconds(t, now), 0);
           return (
-            <section key={key} className="card time__day">
+            <section key={key} id={`time-day-${key}`} className="card time__day">
               <header className="time__day-header">
                 <h2>
                   {key === today ? 'Today' : DAY_LABELS[(date.getDay() + 6) % 7]}
@@ -158,15 +220,61 @@ export default function TimeTracking() {
 
       {invoicing && <InvoiceTimeModal onClose={() => setInvoicing(false)} />}
 
+      {exporting && (
+        <ExportTimesheetModal defaultMonth={keys[keys.length - 1].slice(0, 7)} onClose={() => setExporting(false)} />
+      )}
+
       {editing && (
         <TimeEntryModal
-          key={editing === 'new' ? 'new' : editing.id}
-          entry={editing === 'new' ? null : editing}
-          defaultDate={defaultDate}
+          key={editing.id ?? `new-${editing.date}`}
+          entry={editing.id ? editing : null}
+          defaultDate={editing.date ?? defaultDate}
           onClose={() => setEditing(null)}
         />
       )}
     </div>
+  );
+}
+
+// Calendar of the month: each day shows its hours, shaded by how busy it was.
+function MonthGrid({ keys, entries, now, onDay }) {
+  const today = todayKey();
+  const secondsByDay = {};
+  entries.forEach((t) => {
+    const key = entryDateKey(t);
+    secondsByDay[key] = (secondsByDay[key] ?? 0) + durationSeconds(t, now);
+  });
+  const busiest = Math.max(1, ...Object.values(secondsByDay));
+  const leadingBlanks = (fromKey(keys[0]).getDay() + 6) % 7; // Monday-first grid
+
+  return (
+    <section className="card time__month" aria-label="Hours per day">
+      {DAY_LABELS.map((d) => (
+        <div key={d} className="time__month-label">
+          {d}
+        </div>
+      ))}
+      {Array.from({ length: leadingBlanks }, (_, i) => (
+        <div key={`blank-${i}`} />
+      ))}
+      {keys.map((key) => {
+        const seconds = secondsByDay[key] ?? 0;
+        const date = fromKey(key);
+        return (
+          <button
+            key={key}
+            type="button"
+            className={`time__month-day${key === today ? ' is-today' : ''}${seconds ? ' has-time' : ''}`}
+            style={seconds ? { '--busy': 0.15 + 0.6 * (seconds / busiest) } : undefined}
+            onClick={() => onDay(key)}
+            title={seconds ? `${formatDuration(seconds)} tracked` : 'Add time on this day'}
+          >
+            <span className="time__month-date">{date.getDate()}</span>
+            {seconds > 0 && <span className="time__month-hours">{formatDuration(seconds)}</span>}
+          </button>
+        );
+      })}
+    </section>
   );
 }
 

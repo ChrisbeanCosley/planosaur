@@ -109,12 +109,3 @@ export async function buildReceiptsZip(month, expenses, receipts, onProgress = (
   const zipped = zipSync(files);
   return { blob: new Blob([zipped], { type: 'application/zip' }), fileName: `Planosaur-receipts-${month}.zip` };
 }
-
-export function saveBlob(blob, fileName) {
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = fileName;
-  link.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
