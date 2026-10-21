@@ -42,3 +42,21 @@ export function lastRate(entries, clientId) {
     list.filter((e) => e.rate !== null && e.rate !== undefined).sort((a, b) => b.start.localeCompare(a.start))[0]?.rate;
   return (clientId && latest(entries.filter((e) => e.clientId === clientId))) ?? latest(entries) ?? '';
 }
+
+// Finished, billable, client-linked time that isn't on an invoice yet.
+export const isUnbilled = (entry) => entry.billable && entry.end && entry.clientId && !entry.invoiceId;
+
+// Hours worked, rounded to 2 dp, as an invoice quantity.
+export const entryHours = (entry) => Math.round((durationSeconds(entry) / 3600) * 100) / 100;
+
+// One invoice line for an entry: "Design review (20 Oct 2026)".
+export function entryInvoiceItem(entry, id) {
+  const date = new Date(entry.start).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  return {
+    id,
+    description: `${entry.description || 'Time'} (${date})`,
+    quantity: entryHours(entry),
+    rate: entry.rate ?? 0,
+    taxRate: 0,
+  };
+}

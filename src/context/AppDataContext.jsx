@@ -15,6 +15,7 @@ const initialState = {
   receiptsMissing: false,
   timeEntries: [],
   timeEntriesMissing: false,
+  timeInvoicingMissing: false,
 };
 
 function reducer(state, action) {
@@ -58,6 +59,11 @@ function reducer(state, action) {
         ...state,
         timeEntries: state.timeEntries.map((t) => (t.id === action.entry.id ? action.entry : t)),
       };
+    case 'time/invoice':
+      return {
+        ...state,
+        timeEntries: state.timeEntries.map((t) => (action.ids.includes(t.id) ? { ...t, invoiceId: action.invoiceId } : t)),
+      };
     case 'time/delete':
       return { ...state, timeEntries: state.timeEntries.filter((t) => t.id !== action.id) };
     case 'receipt/add':
@@ -85,7 +91,12 @@ function reducer(state, action) {
         invoices: state.invoices.map((i) => (action.ids.includes(i.id) ? { ...i, ...action.patch } : i)),
       };
     case 'invoice/delete':
-      return { ...state, invoices: state.invoices.filter((i) => !action.ids.includes(i.id)) };
+      return {
+        ...state,
+        invoices: state.invoices.filter((i) => !action.ids.includes(i.id)),
+        // The database unlinks their time entries (on delete set null); mirror that here.
+        timeEntries: state.timeEntries.map((t) => (action.ids.includes(t.invoiceId) ? { ...t, invoiceId: null } : t)),
+      };
     default:
       return state;
   }
@@ -224,8 +235,10 @@ export function AppDataProvider({ children }) {
       },
       // Adds or updates an entry; clientName is matched to (or creates) a client.
       saveTimeEntry: async (entry, clientName) => {
-        const full = { ...entry, clientId: await resolveClientId(clientName) };
-        const exists = state.timeEntries.some((t) => t.id === full.id);
+        const existing = state.timeEntries.find((t) => t.id === entry.id);
+        // Editing an entry keeps the invoice it was billed on.
+        const full = { invoiceId: existing?.invoiceId ?? null, ...entry, clientId: await resolveClientId(clientName) };
+        const exists = Boolean(existing);
         dispatch({ type: exists ? 'time/update' : 'time/add', entry: full });
         const saving = exists ? api.updateTimeEntry(full) : api.insertTimeEntry(full);
         persist(saving);
@@ -247,9 +260,16 @@ export function AppDataProvider({ children }) {
         persist(removing);
         return removing;
       },
-      saveInvoice: (invoice) => {
+      // timeEntryIds: tracked time this invoice bills for. They're linked once the invoice exists.
+      saveInvoice: (invoice, { timeEntryIds = [] } = {}) => {
         dispatch({ type: 'invoice/save', invoice });
-        persist(api.saveInvoice(invoice).then((client) => dispatch({ type: 'client/add', client })));
+        if (timeEntryIds.length) dispatch({ type: 'time/invoice', ids: timeEntryIds, invoiceId: invoice.id });
+        persist(
+          api.saveInvoice(invoice).then(async (client) => {
+            dispatch({ type: 'client/add', client });
+            if (timeEntryIds.length) await api.setTimeEntriesInvoice(timeEntryIds, invoice.id);
+          }),
+        );
       },
       updateInvoices: (ids, patch) => {
         dispatch({ type: 'invoice/update', ids, patch });

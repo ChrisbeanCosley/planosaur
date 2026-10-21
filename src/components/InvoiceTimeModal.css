@@ -1,0 +1,64 @@
+.invoice-time {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.invoice-time__note {
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: #8a8a8a;
+}
+
+.invoice-time__entries {
+  max-height: 260px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.invoice-time__entries li + li {
+  border-top: 1px solid #f1ecf2;
+}
+
+.invoice-time__entry {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 52px 80px;
+  gap: 8px;
+  padding: 8px 2px;
+  font-weight: 400;
+}
+
+.invoice-time__desc {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.invoice-time__hours,
+.invoice-time__amount {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.invoice-time__hours {
+  color: #8a8a8a;
+}
+
+.invoice-time__total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #e9f7e1;
+  font-size: 10px;
+  color: #6f8f62;
+}
+
+.invoice-time__total strong {
+  font-size: 15px;
+  font-weight: 500;
+  color: #4e9a2d;
+}

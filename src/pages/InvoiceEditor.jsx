@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Navigate, useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Download, Pencil, Plus, Save, Search, Settings, SlidersHorizontal, Trash, X } from 'lucide-react';
 import { useAppData } from '../context/AppDataContext';
 import { useAuth } from '../context/AuthContext';
@@ -11,8 +11,9 @@ import './InvoiceEditor.css';
 
 const blankItem = () => ({ id: newId(), description: '', quantity: 1, rate: 0, taxRate: 0 });
 
-function blankInvoice(invoices) {
-  return {
+// fromTime (router state from Time Tracking) prefills the client and one line per time entry.
+function blankInvoice(invoices, fromTime) {
+  const invoice = {
     id: newId(),
     number: nextInvoiceNumber(invoices),
     client: '',
@@ -29,6 +30,7 @@ function blankInvoice(invoices) {
     archived: false,
     recurring: false,
   };
+  return fromTime ? { ...invoice, client: fromTime.client, items: fromTime.items } : invoice;
 }
 
 export default function InvoiceEditor() {
@@ -36,7 +38,9 @@ export default function InvoiceEditor() {
   const { invoices, clients, saveInvoice, deleteInvoices } = useAppData();
   const existing = id ? invoices.find((i) => i.id === id) : null;
   const navigate = useNavigate();
-  const [invoice, setInvoice] = useState(() => existing ?? blankInvoice(invoices));
+  const location = useLocation();
+  const fromTime = id ? null : location.state?.fromTime; // { client, items, timeEntryIds }
+  const [invoice, setInvoice] = useState(() => existing ?? blankInvoice(invoices, fromTime));
   const [error, setError] = useState('');
   const [downloading, setDownloading] = useState(false);
   const { sender } = useAuth();
@@ -68,7 +72,10 @@ export default function InvoiceEditor() {
   const save = () => {
     if (!invoice.client.trim()) return setError('Please select a customer.');
     if (!invoice.items.some((i) => i.description.trim())) return setError('Add at least one item.');
-    saveInvoice({ ...invoice, client: invoice.client.trim(), dueDate: invoice.dueDate || invoice.date });
+    saveInvoice(
+      { ...invoice, client: invoice.client.trim(), dueDate: invoice.dueDate || invoice.date },
+      { timeEntryIds: fromTime?.timeEntryIds },
+    );
     navigate(`/invoices/${invoice.id}`); // show the saved invoice's preview
   };
 

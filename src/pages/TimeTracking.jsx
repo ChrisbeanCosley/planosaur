@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
-import { CircleDollarSign, Play, Plus, Square } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { CircleDollarSign, FileText, Play, Plus, Square } from 'lucide-react';
 import { useAppData } from '../context/AppDataContext';
 import TimeEntryModal from '../components/TimeEntryModal';
+import InvoiceTimeModal from '../components/InvoiceTimeModal';
 import { addDays, DAY_LABELS, fromKey, startOfWeek, todayKey, toKey, weekLabel } from '../utils/date';
 import { formatMoney } from '../utils/money';
 import { durationSeconds, entryAmount, entryDateKey, formatClock, formatDuration, lastRate, timeOfDay } from '../utils/time';
@@ -20,9 +22,10 @@ function useNow(active) {
 }
 
 export default function TimeTracking() {
-  const { timeEntries, timeEntriesMissing, clients } = useAppData();
+  const { timeEntries, timeEntriesMissing, clients, invoices } = useAppData();
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date()));
   const [editing, setEditing] = useState(null); // entry, 'new', or null
+  const [invoicing, setInvoicing] = useState(false);
 
   const running = timeEntries.find((t) => !t.end);
   const now = useNow(Boolean(running));
@@ -32,7 +35,8 @@ export default function TimeTracking() {
   const weekEntries = timeEntries.filter((t) => weekKeys.includes(entryDateKey(t)));
   const totalSeconds = weekEntries.reduce((s, t) => s + durationSeconds(t, now), 0);
   const billableSeconds = weekEntries.filter((t) => t.billable).reduce((s, t) => s + durationSeconds(t, now), 0);
-  const billableAmount = weekEntries.reduce((s, t) => s + entryAmount(t, now), 0);
+  // Already-invoiced time isn't counted: it's been billed.
+  const billableAmount = weekEntries.filter((t) => !t.invoiceId).reduce((s, t) => s + entryAmount(t, now), 0);
 
   const stats = [
     { label: 'Total time', value: formatDuration(totalSeconds) },
@@ -82,6 +86,10 @@ export default function TimeTracking() {
           </button>
         </div>
         <div className="toolbar__actions">
+          <button type="button" className="btn" onClick={() => setInvoicing(true)} disabled={timeEntriesMissing}>
+            <FileText size={16} strokeWidth={1.8} />
+            Create invoice
+          </button>
           <button type="button" className="btn btn--green" onClick={() => setEditing('new')} disabled={timeEntriesMissing}>
             <Plus size={16} strokeWidth={1.8} />
             Add time
@@ -115,8 +123,9 @@ export default function TimeTracking() {
               <ul className="time__entries">
                 {entries.map((entry) => {
                   const amount = entryAmount(entry, now);
+                  const invoice = entry.invoiceId && invoices.find((i) => i.id === entry.invoiceId);
                   return (
-                    <li key={entry.id}>
+                    <li key={entry.id} className="time__entry-row">
                       <button type="button" className="time__entry" onClick={() => setEditing(entry)} title="Edit time">
                         <span className="time__entry-main">
                           <span className="time__entry-desc">{entry.description || 'No description'}</span>
@@ -133,6 +142,11 @@ export default function TimeTracking() {
                           {formatDuration(durationSeconds(entry, now))}
                         </span>
                       </button>
+                      {invoice && (
+                        <Link to={`/invoices/${invoice.id}`} className="time__invoiced" title={`Billed on ${invoice.number}`}>
+                          Invoiced
+                        </Link>
+                      )}
                     </li>
                   );
                 })}
@@ -141,6 +155,8 @@ export default function TimeTracking() {
           );
         })}
       </div>
+
+      {invoicing && <InvoiceTimeModal onClose={() => setInvoicing(false)} />}
 
       {editing && (
         <TimeEntryModal

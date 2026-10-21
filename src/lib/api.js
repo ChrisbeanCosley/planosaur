@@ -141,9 +141,12 @@ const TABLE_MISSING = 'PGRST205';
 // Returns [rows, missing] so a not-yet-created table doesn't break the rest of the app.
 const optionalTable = (res) => (res.error?.code === TABLE_MISSING ? [[], true] : [check(res), false]);
 
+// Postgres "column does not exist": migration 0007 (time_entries.invoice_id) hasn't been run yet.
+const COLUMN_MISSING = '42703';
+
 // ---------- Reads ----------
 export async function fetchAll() {
-  const [tasksRes, eventsRes, invoicesRes, clientsRes, expensesRes, receiptsRes, timeRes] = await Promise.all([
+  const [tasksRes, eventsRes, invoicesRes, clientsRes, expensesRes, receiptsRes, timeRes, timeInvoiceRes] = await Promise.all([
     supabase.from('tasks').select('*'),
     supabase.from('events').select('*'),
     supabase.from('invoices').select('*, client:clients(name), items:invoice_items(*)'),
@@ -151,6 +154,7 @@ export async function fetchAll() {
     supabase.from('expenses').select('*'),
     supabase.from('expense_receipts').select('*').order('created_at'),
     supabase.from('time_entries').select('*').order('started_at'),
+    supabase.from('time_entries').select('invoice_id').limit(1),
   ]);
   const [tasks, events, invoices, clients] = [tasksRes, eventsRes, invoicesRes, clientsRes].map(check);
   const [expenses, expensesMissing] = optionalTable(expensesRes);
@@ -168,6 +172,7 @@ export async function fetchAll() {
     receiptsMissing,
     timeEntries: timeEntries.map(timeEntryFromRow),
     timeEntriesMissing,
+    timeInvoicingMissing: timeEntriesMissing || timeInvoiceRes.error?.code === COLUMN_MISSING,
   };
 }
 
@@ -186,6 +191,7 @@ function timeEntryFromRow(r) {
     end: r.ended_at, // null while the timer is running
     billable: r.billable,
     rate: r.hourly_rate === null ? null : Number(r.hourly_rate),
+    invoiceId: r.invoice_id ?? null, // set once billed (migration 0007)
   };
 }
 
@@ -197,6 +203,8 @@ const timeEntryToRow = (t) => ({
   ended_at: t.end ?? null,
   billable: Boolean(t.billable),
   hourly_rate: t.rate === null || t.rate === '' || t.rate === undefined ? null : Number(t.rate),
+  // Only sent when set, so saves still work before migration 0007. Unbilling happens via the FK.
+  ...(t.invoiceId ? { invoice_id: t.invoiceId } : {}),
 });
 
 export const insertTimeEntry = async (entry) =>
@@ -206,6 +214,10 @@ export const updateTimeEntry = async (entry) =>
   check(await supabase.from('time_entries').update(timeEntryToRow(entry)).eq('id', entry.id));
 
 export const deleteTimeEntry = async (id) => check(await supabase.from('time_entries').delete().eq('id', id));
+
+// Marks entries as billed on an invoice (or unbilled, with null).
+export const setTimeEntriesInvoice = async (ids, invoiceId) =>
+  check(await supabase.from('time_entries').update({ invoice_id: invoiceId }).in('id', ids));
 
 // ---------- Expenses ----------
 export const insertExpense = async (expense) =>
