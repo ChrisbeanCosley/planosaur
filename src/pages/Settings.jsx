@@ -10,10 +10,15 @@ export default function Settings() {
   return (
     <div className="settings">
       <h1 className="page-title">Settings</h1>
+      {/* Two columns: your account on the left, your company on the right. */}
       <div className="settings__sections">
-        <ProfileSection />
-        <CompanySection />
-        <PasswordSection />
+        <div className="settings__column">
+          <ProfileSection />
+          <PasswordSection />
+        </div>
+        <div className="settings__column">
+          <CompanySection />
+        </div>
       </div>
     </div>
   );
