@@ -5,7 +5,7 @@ import './Login.css';
 
 export default function Login() {
   const [mode, setMode] = useState('signin'); // 'signin' | 'signup' | 'reset'
-  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '' });
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState(null); // { tone: 'error' | 'info', text }
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
@@ -27,7 +27,15 @@ export default function Login() {
         const { data, error } = await supabase.auth.signUp({
           email: form.email,
           password: form.password,
-          options: { data: { full_name: form.name.trim() }, emailRedirectTo: window.location.origin },
+          options: {
+            // Same fields Settings edits; full_name is what the sidebar and invoices show.
+            data: {
+              first_name: form.firstName.trim(),
+              last_name: form.lastName.trim(),
+              full_name: `${form.firstName.trim()} ${form.lastName.trim()}`.trim(),
+            },
+            emailRedirectTo: window.location.origin,
+          },
         });
         if (error) throw error;
         if (!data.session) {
@@ -59,10 +67,16 @@ export default function Login() {
 
         <form onSubmit={submit}>
           {mode === 'signup' && (
-            <label className="form-row">
-              <span>Your name</span>
-              <input className="field" value={form.name} onChange={set('name')} required autoComplete="name" />
-            </label>
+            <div className="form-row-group">
+              <label className="form-row">
+                <span>First name</span>
+                <input className="field" value={form.firstName} onChange={set('firstName')} required autoComplete="given-name" />
+              </label>
+              <label className="form-row">
+                <span>Surname</span>
+                <input className="field" value={form.lastName} onChange={set('lastName')} required autoComplete="family-name" />
+              </label>
+            </div>
           )}
           <label className="form-row">
             <span>Email</span>
