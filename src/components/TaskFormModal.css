@@ -1,0 +1,62 @@
+.task-priority {
+  align-self: flex-start;
+}
+
+.task-priority button {
+  min-width: 58px;
+}
+
+.task-priority button.task-priority--high.is-active {
+  background: var(--danger);
+}
+
+.task-priority button.task-priority--low.is-active {
+  background: #a3a3a3;
+}
+
+/* The section that appears when a task is high priority */
+.task-high {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  border-left: 3px solid var(--danger);
+  border-radius: 10px;
+  background: var(--danger-soft);
+}
+
+.task-high__title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #b33d3d;
+}
+
+.task-high__text,
+.task-high__note {
+  font-size: 9.5px;
+  line-height: 1.4;
+  color: #8a5a5a;
+}
+
+.task-high .form-check {
+  gap: 6px;
+  accent-color: var(--danger);
+}
+
+.task-high .form-check input {
+  accent-color: var(--danger);
+}
+
+.task-high__time {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 220px;
+}
+
+.task-high__time .field {
+  background: #fff;
+}

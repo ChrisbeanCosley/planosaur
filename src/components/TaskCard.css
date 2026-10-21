@@ -120,3 +120,34 @@
   width: 30.5px;
   height: 30.5px;
 }
+
+/* Priority badges next to the title */
+.task-card__priority {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  vertical-align: 2px;
+}
+
+.task-card__priority--high {
+  background: var(--danger);
+  color: #fff;
+}
+
+.task-card__priority--low {
+  background: #ececec;
+  color: #8a8a8a;
+}
+
+.task-card__bell {
+  margin-left: 5px;
+  color: var(--danger);
+  vertical-align: -1px;
+}

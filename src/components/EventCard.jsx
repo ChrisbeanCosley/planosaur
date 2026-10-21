@@ -1,4 +1,4 @@
-import { SquareCheckBig, User } from 'lucide-react';
+import { Flag, SquareCheckBig, User } from 'lucide-react';
 import { EVENT_CATEGORIES } from '../data/categories';
 import { formatTaskTime } from '../utils/tasks';
 import './EventCard.css';
@@ -18,6 +18,7 @@ export default function EventCard({ event, onClick }) {
     >
       <div className="event-card__title">
         {isTask && <SquareCheckBig size={11} strokeWidth={2} className="event-card__task-icon" aria-label="Task" />}
+        {event.priority === 'high' && <Flag size={11} strokeWidth={2.4} className="event-card__task-icon" aria-label="High priority" />}
         {event.title}
       </div>
       {time && <div>{time}</div>}

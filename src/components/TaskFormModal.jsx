@@ -1,11 +1,23 @@
 import { useState } from 'react';
+import { BellRing, Flag } from 'lucide-react';
 import Modal, { FormRow } from './Modal';
+import { useAppData } from '../context/AppDataContext';
 import { TASK_CATEGORIES } from '../data/categories';
 import { todayKey } from '../utils/date';
+import { combineDateTime, timeOfDay } from '../utils/time';
+import './TaskFormModal.css';
+
+const PRIORITIES = [
+  ['low', 'Low'],
+  ['normal', 'Normal'],
+  ['high', 'High'],
+];
+const DEFAULT_REMINDER_TIME = '08:00';
 
 // Adds a new task, or edits `task` when one is passed (then onDelete is shown too).
 export default function TaskFormModal({ task, onSave, onDelete, onClose, defaultDate = todayKey() }) {
   const editing = Boolean(task);
+  const { taskPriorityMissing } = useAppData();
   const [form, setForm] = useState({
     title: task?.title ?? '',
     description: task?.description ?? '',
@@ -14,16 +26,27 @@ export default function TaskFormModal({ task, onSave, onDelete, onClose, default
     start: task?.start ?? '',
     end: task?.end ?? '',
     done: task?.done ?? false,
+    priority: task?.priority ?? 'normal',
+    remind: Boolean(task?.reminderAt),
+    reminderTime: task?.reminderAt ? timeOfDay(task.reminderAt) : DEFAULT_REMINDER_TIME,
   });
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
+  // Reminders are only for high-priority tasks, at a time on the task's own day.
+  const reminderAt =
+    form.priority === 'high' && form.remind && form.reminderTime ? combineDateTime(form.date, form.reminderTime) : null;
+  const reminderInPast = reminderAt && new Date(reminderAt) < new Date();
+  const alreadySent = task?.reminderSentAt && task.reminderAt === reminderAt;
+
   const submit = (e) => {
     e.preventDefault();
+    const { remind, reminderTime, ...fields } = form;
     onSave({
-      ...form,
+      ...fields,
       title: form.title.trim(),
       description: form.description.trim(),
       start: form.start || undefined,
+      reminderAt,
     });
     onClose();
   };
@@ -65,6 +88,51 @@ export default function TaskFormModal({ task, onSave, onDelete, onClose, default
             <input className="field" type="time" required value={form.end} onChange={set('end')} />
           </FormRow>
         </div>
+        {!taskPriorityMissing && (
+          <FormRow label="Priority">
+            <div className="view-toggle task-priority" role="group" aria-label="Priority">
+              {PRIORITIES.map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  className={`${form.priority === value ? 'is-active' : ''} task-priority--${value}`}
+                  aria-pressed={form.priority === value}
+                  onClick={() => setForm((f) => ({ ...f, priority: value }))}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </FormRow>
+        )}
+
+        {form.priority === 'high' && !taskPriorityMissing && (
+          <section className="task-high" aria-label="High priority">
+            <p className="task-high__title">
+              <Flag size={13} strokeWidth={2} /> High priority task
+            </p>
+            <p className="task-high__text">This task is marked as high priority and will stand out on your task lists.</p>
+            <label className="form-check">
+              <input type="checkbox" checked={form.remind} onChange={(e) => setForm((f) => ({ ...f, remind: e.target.checked }))} />
+              <BellRing size={13} strokeWidth={1.8} /> Email me a reminder on the day
+            </label>
+            {form.remind && (
+              <div className="task-high__time">
+                <FormRow label="Reminder time">
+                  <input className="field" type="time" required value={form.reminderTime} onChange={set('reminderTime')} />
+                </FormRow>
+                <p className="task-high__note">
+                  {alreadySent
+                    ? 'This reminder has already been sent.'
+                    : reminderInPast
+                      ? 'That time has already passed, so the reminder will be sent within a few minutes.'
+                      : `Sent to your email on ${new Date(reminderAt).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })} at ${form.reminderTime}.`}
+                </p>
+              </div>
+            )}
+          </section>
+        )}
+
         {editing && (
           <label className="form-check">
             <input

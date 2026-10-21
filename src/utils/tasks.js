@@ -31,6 +31,7 @@ export function calendarItems(events, tasks) {
     end: task.end,
     category: TASK_TO_EVENT_CATEGORY[task.category] ?? 'work',
     done: task.done,
+    priority: task.priority,
   }));
   return [...events, ...taskItems];
 }

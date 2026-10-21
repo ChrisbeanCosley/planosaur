@@ -21,7 +21,14 @@ const taskFromRow = (r) => ({
   start: toTime(r.start_time),
   end: toTime(r.end_time),
   done: r.done,
+  priority: r.priority ?? 'normal', // migration 0009
+  reminderAt: r.reminder_at ?? null, // ISO timestamp of the reminder email, or null
+  reminderSentAt: r.reminder_sent_at ?? null,
 });
+
+// Whether tasks.priority / reminder_at exist (migration 0009). Set by fetchAll; until then those
+// fields aren't sent, so saving tasks keeps working.
+let tasksHavePriority = true;
 
 const taskToRow = (t) => ({
   id: t.id,
@@ -32,6 +39,9 @@ const taskToRow = (t) => ({
   start_time: orNull(t.start),
   end_time: orNull(t.end),
   done: Boolean(t.done),
+  ...(tasksHavePriority
+    ? { priority: t.priority ?? 'normal', reminder_at: t.reminderAt ?? null, reminder_sent_at: t.reminderSentAt ?? null }
+    : {}),
 });
 
 const eventFromRow = (r) => ({
@@ -150,7 +160,7 @@ const COLUMN_MISSING = '42703';
 
 // ---------- Reads ----------
 export async function fetchAll() {
-  const [tasksRes, eventsRes, invoicesRes, clientsRes, expensesRes, receiptsRes, timeRes, timeInvoiceRes] = await Promise.all([
+  const [tasksRes, eventsRes, invoicesRes, clientsRes, expensesRes, receiptsRes, timeRes, timeInvoiceRes, priorityRes] = await Promise.all([
     supabase.from('tasks').select('*'),
     supabase.from('events').select('*'),
     supabase.from('invoices').select('*, client:clients(name), items:invoice_items(*)'),
@@ -159,8 +169,10 @@ export async function fetchAll() {
     supabase.from('expense_receipts').select('*').order('created_at'),
     supabase.from('time_entries').select('*').order('started_at'),
     supabase.from('time_entries').select('invoice_id').limit(1),
+    supabase.from('tasks').select('priority').limit(1),
   ]);
   const [tasks, events, invoices, clients] = [tasksRes, eventsRes, invoicesRes, clientsRes].map(check);
+  tasksHavePriority = priorityRes.error?.code !== COLUMN_MISSING;
   const [expenses, expensesMissing] = optionalTable(expensesRes);
   const [receipts, receiptsMissing] = optionalTable(receiptsRes);
   const [timeEntries, timeEntriesMissing] = optionalTable(timeRes);
@@ -177,6 +189,7 @@ export async function fetchAll() {
     timeEntries: timeEntries.map(timeEntryFromRow),
     timeEntriesMissing,
     timeInvoicingMissing: timeEntriesMissing || timeInvoiceRes.error?.code === COLUMN_MISSING,
+    taskPriorityMissing: !tasksHavePriority,
   };
 }
 

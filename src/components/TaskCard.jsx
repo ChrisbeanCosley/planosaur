@@ -1,4 +1,4 @@
-import { Check } from 'lucide-react';
+import { BellRing, Check, Flag } from 'lucide-react';
 import { TASK_CATEGORIES } from '../data/categories';
 import { formatTaskTime } from '../utils/tasks';
 import './TaskCard.css';
@@ -30,7 +30,18 @@ export default function TaskCard({ task, state = 'open', onToggle, onOpen, compa
         <Check size={19} strokeWidth={2} />
       </button>
       <Body className="task-card__body" {...(onOpen ? { type: 'button', title: 'Edit task' } : {})}>
-        <h3 className="task-card__title">{task.title}</h3>
+        <h3 className="task-card__title">
+          {task.title}
+          {task.priority === 'high' && (
+            <span className="task-card__priority task-card__priority--high" title="High priority">
+              <Flag size={9} strokeWidth={2.4} /> High
+            </span>
+          )}
+          {task.priority === 'low' && <span className="task-card__priority task-card__priority--low">Low</span>}
+          {task.reminderAt && !task.done && (
+            <BellRing size={11} strokeWidth={2} className="task-card__bell" aria-label="Reminder email set" />
+          )}
+        </h3>
         {task.description && <p className="task-card__description">{task.description}</p>}
         <div className="task-card__time">{formatTaskTime(task)}</div>
       </Body>

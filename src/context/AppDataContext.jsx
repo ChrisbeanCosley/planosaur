@@ -15,6 +15,7 @@ const initialState = {
   receiptsMissing: false,
   timeEntries: [],
   timeEntriesMissing: false,
+  taskPriorityMissing: false,
   timeInvoicingMissing: false,
 };
 
@@ -169,6 +170,8 @@ export function AppDataProvider({ children }) {
         const task = state.tasks.find((t) => t.id === id);
         if (!task) return;
         const full = { ...task, ...changes, id };
+        // A new reminder time (or day) should send again, even if the old one already went out.
+        if (full.reminderAt !== task.reminderAt) full.reminderSentAt = null;
         dispatch({ type: 'task/update', task: full });
         persist(api.updateTask(full));
       },

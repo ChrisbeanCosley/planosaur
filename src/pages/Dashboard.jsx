@@ -36,7 +36,8 @@ export default function Dashboard() {
   const today = todayKey();
   const todaysTasks = tasks
     .filter((t) => t.date === today && !t.done && matches(`${t.title} ${t.description}`))
-    .sort(byStartTime)
+    // High-priority tasks first, then by time.
+    .sort((a, b) => (b.priority === 'high') - (a.priority === 'high') || byStartTime(a, b))
     .slice(0, 3);
 
   return (
