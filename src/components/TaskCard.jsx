@@ -1,11 +1,12 @@
-import { BellRing, Check, Flag } from 'lucide-react';
+import { Check, Flag } from 'lucide-react';
 import { TASK_CATEGORIES } from '../data/categories';
 import { formatTaskTime } from '../utils/tasks';
 import './TaskCard.css';
 
 // state: 'open' | 'done' | 'overdue'. Clicking the card (not the tick) calls onOpen to edit it.
 // compact: smaller version for narrow columns (e.g. the week view).
-export default function TaskCard({ task, state = 'open', onToggle, onOpen, compact = false }) {
+// showBolt: a ⚡ in the top-right corner of high-priority tasks (used on the dashboard).
+export default function TaskCard({ task, state = 'open', onToggle, onOpen, compact = false, showBolt = false }) {
   const category = TASK_CATEGORIES[task.category] ?? TASK_CATEGORIES.other;
   const accent = state === 'overdue' ? 'var(--danger)' : state === 'done' ? 'var(--green)' : category.color;
   const soft = state === 'overdue' ? '#ffc4cb' : state === 'done' ? 'var(--green)' : category.soft;
@@ -18,6 +19,11 @@ export default function TaskCard({ task, state = 'open', onToggle, onOpen, compa
       onClick={onOpen && (() => onOpen(task))}
     >
       <span className="task-card__bar" />
+      {showBolt && task.priority === 'high' && (
+        <span className="task-card__bolt" role="img" aria-label="High priority" title="High priority">
+          ⚡
+        </span>
+      )}
       <button
         type="button"
         className="task-card__check"
@@ -38,9 +44,6 @@ export default function TaskCard({ task, state = 'open', onToggle, onOpen, compa
             </span>
           )}
           {task.priority === 'low' && <span className="task-card__priority task-card__priority--low">Low</span>}
-          {task.reminderAt && !task.done && (
-            <BellRing size={11} strokeWidth={2} className="task-card__bell" aria-label="Reminder email set" />
-          )}
         </h3>
         {task.description && <p className="task-card__description">{task.description}</p>}
         <div className="task-card__time">{formatTaskTime(task)}</div>

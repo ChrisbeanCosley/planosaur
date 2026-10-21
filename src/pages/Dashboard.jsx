@@ -101,6 +101,7 @@ export default function Dashboard() {
                   state={taskState(task)}
                   onToggle={toggleTask}
                   onOpen={(t) => setSelection({ kind: 'task', id: t.id })}
+                  showBolt
                 />
               </div>
             ))}

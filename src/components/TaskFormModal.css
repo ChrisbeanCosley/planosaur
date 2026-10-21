@@ -34,29 +34,8 @@
   color: #b33d3d;
 }
 
-.task-high__text,
-.task-high__note {
+.task-high__text {
   font-size: 9.5px;
   line-height: 1.4;
   color: #8a5a5a;
-}
-
-.task-high .form-check {
-  gap: 6px;
-  accent-color: var(--danger);
-}
-
-.task-high .form-check input {
-  accent-color: var(--danger);
-}
-
-.task-high__time {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  max-width: 220px;
-}
-
-.task-high__time .field {
-  background: #fff;
 }

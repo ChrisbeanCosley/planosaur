@@ -146,8 +146,16 @@
   color: #8a8a8a;
 }
 
-.task-card__bell {
-  margin-left: 5px;
-  color: var(--danger);
-  vertical-align: -1px;
+/* ⚡ in the top-right corner of high-priority tasks (dashboard) */
+.task-card {
+  position: relative;
+}
+
+.task-card__bolt {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 15px;
+  line-height: 1;
+  pointer-events: none;
 }

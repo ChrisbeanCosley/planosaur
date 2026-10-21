@@ -22,12 +22,10 @@ const taskFromRow = (r) => ({
   end: toTime(r.end_time),
   done: r.done,
   priority: r.priority ?? 'normal', // migration 0009
-  reminderAt: r.reminder_at ?? null, // ISO timestamp of the reminder email, or null
-  reminderSentAt: r.reminder_sent_at ?? null,
 });
 
-// Whether tasks.priority / reminder_at exist (migration 0009). Set by fetchAll; until then those
-// fields aren't sent, so saving tasks keeps working.
+// Whether tasks.priority exists (migration 0009). Set by fetchAll; until then priority isn't
+// sent, so saving tasks keeps working.
 let tasksHavePriority = true;
 
 const taskToRow = (t) => ({
@@ -39,9 +37,7 @@ const taskToRow = (t) => ({
   start_time: orNull(t.start),
   end_time: orNull(t.end),
   done: Boolean(t.done),
-  ...(tasksHavePriority
-    ? { priority: t.priority ?? 'normal', reminder_at: t.reminderAt ?? null, reminder_sent_at: t.reminderSentAt ?? null }
-    : {}),
+  ...(tasksHavePriority ? { priority: t.priority ?? 'normal' } : {}),
 });
 
 const eventFromRow = (r) => ({
