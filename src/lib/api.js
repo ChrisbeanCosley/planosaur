@@ -143,17 +143,19 @@ const optionalTable = (res) => (res.error?.code === TABLE_MISSING ? [[], true] :
 
 // ---------- Reads ----------
 export async function fetchAll() {
-  const [tasksRes, eventsRes, invoicesRes, clientsRes, expensesRes, receiptsRes] = await Promise.all([
+  const [tasksRes, eventsRes, invoicesRes, clientsRes, expensesRes, receiptsRes, timeRes] = await Promise.all([
     supabase.from('tasks').select('*'),
     supabase.from('events').select('*'),
     supabase.from('invoices').select('*, client:clients(name), items:invoice_items(*)'),
     supabase.from('clients').select('id, name').order('name'),
     supabase.from('expenses').select('*'),
     supabase.from('expense_receipts').select('*').order('created_at'),
+    supabase.from('time_entries').select('*').order('started_at'),
   ]);
   const [tasks, events, invoices, clients] = [tasksRes, eventsRes, invoicesRes, clientsRes].map(check);
   const [expenses, expensesMissing] = optionalTable(expensesRes);
   const [receipts, receiptsMissing] = optionalTable(receiptsRes);
+  const [timeEntries, timeEntriesMissing] = optionalTable(timeRes);
 
   return {
     tasks: tasks.map(taskFromRow),
@@ -164,8 +166,46 @@ export async function fetchAll() {
     expensesMissing,
     receipts: receipts.map(receiptFromRow),
     receiptsMissing,
+    timeEntries: timeEntries.map(timeEntryFromRow),
+    timeEntriesMissing,
   };
 }
+
+// ---------- Clients ----------
+// Finds a client by name, creating it the first time it's used. Returns { id, name }.
+export const findOrCreateClient = async (name) =>
+  check(await supabase.from('clients').upsert({ name }, { onConflict: 'user_id,name' }).select('id, name').single());
+
+// ---------- Time tracking (see supabase/migrations/0006_time_entries.sql) ----------
+function timeEntryFromRow(r) {
+  return {
+    id: r.id,
+    description: r.description ?? '',
+    clientId: r.client_id,
+    start: r.started_at,
+    end: r.ended_at, // null while the timer is running
+    billable: r.billable,
+    rate: r.hourly_rate === null ? null : Number(r.hourly_rate),
+  };
+}
+
+const timeEntryToRow = (t) => ({
+  id: t.id,
+  description: t.description ?? '',
+  client_id: t.clientId ?? null,
+  started_at: t.start,
+  ended_at: t.end ?? null,
+  billable: Boolean(t.billable),
+  hourly_rate: t.rate === null || t.rate === '' || t.rate === undefined ? null : Number(t.rate),
+});
+
+export const insertTimeEntry = async (entry) =>
+  check(await supabase.from('time_entries').insert(timeEntryToRow(entry)));
+
+export const updateTimeEntry = async (entry) =>
+  check(await supabase.from('time_entries').update(timeEntryToRow(entry)).eq('id', entry.id));
+
+export const deleteTimeEntry = async (id) => check(await supabase.from('time_entries').delete().eq('id', id));
 
 // ---------- Expenses ----------
 export const insertExpense = async (expense) =>

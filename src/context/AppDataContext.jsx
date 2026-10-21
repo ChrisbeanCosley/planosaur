@@ -13,6 +13,8 @@ const initialState = {
   expensesMissing: false,
   receipts: [],
   receiptsMissing: false,
+  timeEntries: [],
+  timeEntriesMissing: false,
 };
 
 function reducer(state, action) {
@@ -49,6 +51,15 @@ function reducer(state, action) {
         expenses: state.expenses.filter((e) => e.id !== action.id),
         receipts: state.receipts.filter((r) => r.expenseId !== action.id),
       };
+    case 'time/add':
+      return { ...state, timeEntries: [...state.timeEntries, action.entry] };
+    case 'time/update':
+      return {
+        ...state,
+        timeEntries: state.timeEntries.map((t) => (t.id === action.entry.id ? action.entry : t)),
+      };
+    case 'time/delete':
+      return { ...state, timeEntries: state.timeEntries.filter((t) => t.id !== action.id) };
     case 'receipt/add':
       return { ...state, receipts: [...state.receipts, action.receipt] };
     case 'receipt/delete':
@@ -108,6 +119,20 @@ export function AppDataProvider({ children }) {
         reload();
       }),
     [reload],
+  );
+
+  // Client name -> id, creating the client the first time a new name is used. Blank -> null.
+  const resolveClientId = useCallback(
+    async (name) => {
+      const trimmed = name?.trim();
+      if (!trimmed) return null;
+      const existing = state.clients.find((c) => c.name.toLowerCase() === trimmed.toLowerCase());
+      if (existing) return existing.id;
+      const client = await api.findOrCreateClient(trimmed);
+      dispatch({ type: 'client/add', client });
+      return client.id;
+    },
+    [state.clients],
   );
 
   const value = useMemo(
@@ -178,6 +203,38 @@ export function AppDataProvider({ children }) {
         dispatch({ type: 'expense/delete', id });
         persist(api.deleteExpense(id, paths));
       },
+      // ---------- Time tracking ----------
+      // Starts a timer now. Returns the save promise so the caller can show errors.
+      startTimer: async ({ description, clientName, billable, rate }) => {
+        const clientId = await resolveClientId(clientName);
+        const entry = { id: newId(), description, clientId, start: new Date().toISOString(), end: null, billable, rate };
+        dispatch({ type: 'time/add', entry });
+        const saving = api.insertTimeEntry(entry);
+        persist(saving);
+        return saving;
+      },
+      stopTimer: (id) => {
+        const entry = state.timeEntries.find((t) => t.id === id);
+        if (!entry) return Promise.resolve();
+        const full = { ...entry, end: new Date().toISOString() };
+        dispatch({ type: 'time/update', entry: full });
+        const saving = api.updateTimeEntry(full);
+        persist(saving);
+        return saving;
+      },
+      // Adds or updates an entry; clientName is matched to (or creates) a client.
+      saveTimeEntry: async (entry, clientName) => {
+        const full = { ...entry, clientId: await resolveClientId(clientName) };
+        const exists = state.timeEntries.some((t) => t.id === full.id);
+        dispatch({ type: exists ? 'time/update' : 'time/add', entry: full });
+        const saving = exists ? api.updateTimeEntry(full) : api.insertTimeEntry(full);
+        persist(saving);
+        return saving;
+      },
+      deleteTimeEntry: (id) => {
+        dispatch({ type: 'time/delete', id });
+        persist(api.deleteTimeEntry(id));
+      },
       // Uploads first, then shows it: there's nothing to display until the file is stored.
       addReceipt: async (expenseId, file) => {
         const receipt = await api.uploadReceipt(expenseId, file);
@@ -207,7 +264,7 @@ export function AppDataProvider({ children }) {
         await reload();
       },
     }),
-    [state, status, error, persist, reload],
+    [state, status, error, persist, reload, resolveClientId],
   );
 
   return <AppDataContext.Provider value={value}>{children}</AppDataContext.Provider>;

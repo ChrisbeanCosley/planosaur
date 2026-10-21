@@ -1,0 +1,241 @@
+/* ---------- Timer bar ---------- */
+.timer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 26px;
+  padding: 14px 16px;
+}
+
+.timer__desc {
+  flex: 1 1 220px;
+}
+
+.timer__client-input {
+  flex: 0 1 180px;
+}
+
+.timer__rate {
+  flex: 0 1 110px;
+}
+
+.timer__billable {
+  color: #c9c4ca;
+}
+
+.timer__billable.is-on {
+  color: var(--green);
+}
+
+.timer__clock {
+  min-width: 78px;
+  font-size: 17px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.timer__clock--idle {
+  color: #c9c4ca;
+}
+
+.timer--running {
+  border-left: 4px solid var(--green);
+}
+
+.timer__running-info {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  text-align: left;
+  font-size: 12px;
+}
+
+.timer__running-info strong {
+  display: block;
+  font-weight: 500;
+}
+
+.timer__client {
+  font-size: 10px;
+  color: #8a8a8a;
+}
+
+/* Gently pulsing dot while the clock runs */
+.timer__pulse {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: timer-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes timer-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(108, 198, 68, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(108, 198, 68, 0);
+  }
+}
+
+.timer__error {
+  flex-basis: 100%;
+}
+
+/* ---------- Week toolbar and stats ---------- */
+.time__toolbar {
+  margin: 26px 0 20px;
+}
+
+.time__toolbar .tasks__dates > button:not(.icon-button) {
+  font-size: 17px;
+}
+
+.time__stats {
+  background: #eeeafd;
+}
+
+.time__stats strong {
+  color: var(--primary);
+}
+
+/* ---------- Days and entries ---------- */
+.time__days {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.time__day {
+  padding: 12px 16px 6px;
+}
+
+.time__day-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+}
+
+.time__day-header h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.4px;
+}
+
+.time__day-header h2 span {
+  font-size: 10px;
+  color: #8a8a8a;
+}
+
+.time__day-header strong {
+  font-size: 13px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.time__entries {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.time__entries li + li {
+  border-top: 1px solid #f1ecf2;
+}
+
+.time__entry {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 100px 22px 90px 52px;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 4px;
+  border: none;
+  background: none;
+  font-size: 10.5px;
+  text-align: left;
+}
+
+.time__entry:hover {
+  background: #faf6fa;
+}
+
+.time__entry-main {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.time__entry-desc {
+  overflow: hidden;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.time__entry-client {
+  flex-shrink: 0;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--purple-soft);
+  color: var(--primary);
+  font-size: 9.5px;
+}
+
+.time__entry-range {
+  color: #8a8a8a;
+  font-variant-numeric: tabular-nums;
+}
+
+.time__entry-billable {
+  display: grid;
+  place-items: center;
+  color: #d8d2d9;
+}
+
+.time__entry-billable.is-on {
+  color: var(--green);
+}
+
+.time__entry-amount {
+  color: #8a8a8a;
+  text-align: right;
+}
+
+.time__entry-duration {
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.time__entry-duration.is-running {
+  color: var(--green);
+}
+
+@media (max-width: 733px) {
+  .time__entry {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .time__entry-range,
+  .time__entry-billable,
+  .time__entry-amount {
+    display: none;
+  }
+}

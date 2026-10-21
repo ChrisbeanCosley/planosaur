@@ -53,3 +53,11 @@ export const formatLongDate = (date) =>
 // e.g. "Sep 11"
 export const formatShortDate = (date) =>
   date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+// "This week", or a range like "Oct 12 – 18" / "Sep 28 – Oct 4".
+export function weekLabel(weekStart) {
+  if (toKey(startOfWeek(new Date())) === toKey(weekStart)) return 'This week';
+  const end = addDays(weekStart, 6);
+  const endText = end.getMonth() === weekStart.getMonth() ? end.getDate() : formatShortDate(end);
+  return `${formatShortDate(weekStart)} – ${endText}`;
+}

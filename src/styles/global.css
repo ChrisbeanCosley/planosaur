@@ -250,6 +250,15 @@ select.field {
   font-size: 10px;
 }
 
+.form-error {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--danger-soft);
+  color: #b33d3d;
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+
 /* Hidden native inputs (date picker, file picker) opened by a visible button */
 .visually-hidden {
   position: absolute;

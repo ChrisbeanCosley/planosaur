@@ -7,19 +7,11 @@ import TaskCard from '../components/TaskCard';
 import TaskFormModal from '../components/TaskFormModal';
 import ItemEditor from '../components/ItemEditor';
 import { TASK_CATEGORIES, toOptions } from '../data/categories';
-import { addDays, DAY_LABELS, formatShortDate, fromKey, startOfDay, startOfWeek, todayKey, toKey } from '../utils/date';
+import { addDays, DAY_LABELS, formatShortDate, fromKey, startOfDay, startOfWeek, todayKey, toKey, weekLabel } from '../utils/date';
 import { byStartTime, taskState } from '../utils/tasks';
 import './Tasks.css';
 
 const dayLabel = (date) => (toKey(date) === todayKey() ? 'Today' : formatShortDate(date));
-
-// "This week", or a range like "Oct 12 – 18" / "Sep 28 – Oct 4".
-function weekLabel(weekStart) {
-  if (toKey(startOfWeek(new Date())) === toKey(weekStart)) return 'This week';
-  const end = addDays(weekStart, 6);
-  const endText = end.getMonth() === weekStart.getMonth() ? end.getDate() : formatShortDate(end);
-  return `${formatShortDate(weekStart)} – ${endText}`;
-}
 
 export default function Tasks() {
   const { tasks, addTask, toggleTask } = useAppData();
