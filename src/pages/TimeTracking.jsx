@@ -45,7 +45,7 @@ function periodKeys(view, anchor) {
 
 export default function TimeTracking() {
   const { timeEntries, timeEntriesMissing, clients, invoices } = useAppData();
-  const [view, setView] = useState('week'); // 'week' | 'month'
+  const [view, setView] = useState('month'); // 'week' | 'month'
   const [anchor, setAnchor] = useState(() => startOfDay(new Date())); // any day in the period shown
   const [editing, setEditing] = useState(null); // entry, { date } for a new one, or null
   const [invoicing, setInvoicing] = useState(false);
@@ -112,7 +112,7 @@ export default function TimeTracking() {
       <div className="toolbar time__toolbar">
         <div className="tasks__nav">
           <div className="view-toggle" role="group" aria-label="View">
-            {['week', 'month'].map((v) => (
+            {['month', 'week'].map((v) => (
               <button
                 key={v}
                 type="button"
