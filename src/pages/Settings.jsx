@@ -33,6 +33,75 @@ function Message({ message }) {
   );
 }
 
+// Round profile picture (shown in the sidebar), with upload / replace / remove.
+function ProfilePicture() {
+  const { avatarUrl, name, uploadAvatar, removeAvatar } = useAuth();
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState(null);
+  const fileInput = useRef(null);
+  const initials = name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0].toUpperCase())
+    .join('');
+
+  const run = async (action, success) => {
+    setBusy(true);
+    setMessage(null);
+    try {
+      await action();
+      setMessage({ tone: 'success', text: success });
+    } catch (err) {
+      setMessage({ tone: 'error', text: err.message });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const onFile = (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // allow choosing the same file again
+    if (file) run(() => uploadAvatar(file), 'Profile picture saved.');
+  };
+
+  const remove = () => {
+    if (!window.confirm('Remove your profile picture?')) return;
+    run(removeAvatar, 'Profile picture removed.');
+  };
+
+  return (
+    <div className="settings__avatar-block">
+      <div className="settings__avatar" aria-hidden="true">
+        {avatarUrl ? <img src={avatarUrl} alt="" /> : initials}
+      </div>
+      <div className="settings__avatar-actions">
+        <div className="settings__actions">
+          <button type="button" className="btn" onClick={() => fileInput.current?.click()} disabled={busy}>
+            {busy ? 'Saving…' : avatarUrl ? 'Replace picture' : 'Upload picture'}
+          </button>
+          {avatarUrl && (
+            <button type="button" className="btn btn--ghost" onClick={remove} disabled={busy}>
+              Remove
+            </button>
+          )}
+        </div>
+        <p className="settings__hint">Any photo works: it’s cropped to a square for you.</p>
+        <Message message={message} />
+      </div>
+      <input
+        ref={fileInput}
+        type="file"
+        accept="image/*"
+        className="visually-hidden"
+        onChange={onFile}
+        tabIndex={-1}
+        aria-hidden="true"
+      />
+    </div>
+  );
+}
+
 function ProfileSection() {
   const { user, firstName, lastName, updateName } = useAuth();
   const [form, setForm] = useState({ first: firstName, last: lastName });
@@ -62,6 +131,7 @@ function ProfileSection() {
       <h2 className="settings__heading">
         <UserRound size={17} strokeWidth={1.8} /> Profile
       </h2>
+      <ProfilePicture />
       <form onSubmit={save} className="settings__form">
         <div className="form-row-group">
           <label className="form-row">

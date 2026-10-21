@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { squareImage } from '../utils/image';
 
 const AuthContext = createContext(null);
 
@@ -8,6 +9,33 @@ const LOGO_BUCKET = 'logos';
 const LOGO_TYPES = { 'image/png': 'png', 'image/jpeg': 'jpg' };
 const LOGO_MAX_BYTES = 2 * 1024 * 1024;
 const LOGO_URL_SECONDS = 60 * 60;
+
+// Profile pictures share the private logos bucket (same per-user folder rules), so no extra
+// migration is needed. They're cropped and shrunk in the browser before upload.
+const AVATAR_SIZE = 400;
+
+// A short-lived signed URL for a private file in the logos bucket, refreshed before it expires.
+function useSignedUrl(path) {
+  const [url, setUrl] = useState(null);
+  useEffect(() => {
+    if (!path) {
+      setUrl(null);
+      return undefined;
+    }
+    let cancelled = false;
+    const refresh = async () => {
+      const { data } = await supabase.storage.from(LOGO_BUCKET).createSignedUrl(path, LOGO_URL_SECONDS);
+      if (!cancelled) setUrl(data?.signedUrl ?? null);
+    };
+    refresh();
+    const timer = setInterval(refresh, (LOGO_URL_SECONDS - 300) * 1000);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, [path]);
+  return url;
+}
 
 export function AuthProvider({ children }) {
   // undefined = still checking, null = signed out
@@ -35,26 +63,9 @@ export function AuthProvider({ children }) {
   const vatNumber = vatRegistered ? (meta.vat_number ?? '') : '';
   const logoPath = meta.logo_path ?? null;
 
-  // The logos bucket is private, so the logo is shown through a short-lived signed URL,
-  // refreshed before it expires.
-  const [logoUrl, setLogoUrl] = useState(null);
-  useEffect(() => {
-    if (!logoPath) {
-      setLogoUrl(null);
-      return undefined;
-    }
-    let cancelled = false;
-    const refresh = async () => {
-      const { data } = await supabase.storage.from(LOGO_BUCKET).createSignedUrl(logoPath, LOGO_URL_SECONDS);
-      if (!cancelled) setLogoUrl(data?.signedUrl ?? null);
-    };
-    refresh();
-    const timer = setInterval(refresh, (LOGO_URL_SECONDS - 300) * 1000);
-    return () => {
-      cancelled = true;
-      clearInterval(timer);
-    };
-  }, [logoPath]);
+  const avatarPath = meta.avatar_path ?? null;
+  const logoUrl = useSignedUrl(logoPath);
+  const avatarUrl = useSignedUrl(avatarPath);
 
   // Supabase calls resolve to { data, error }; throw so callers can use try/catch.
   const run = async (promise) => {
@@ -73,6 +84,22 @@ export function AuthProvider({ children }) {
     if (logoPath) await supabase.storage.from(LOGO_BUCKET).remove([logoPath]);
   };
 
+  // Any photo works: it's cropped to a centred square and saved as a small JPEG first.
+  const uploadAvatar = async (file) => {
+    if (!file.type.startsWith('image/')) throw new Error('Please choose a photo (JPG, PNG or similar).');
+    const blob = await squareImage(file, AVATAR_SIZE);
+    const path = `${user.id}/avatar-${Date.now()}.jpg`;
+    await run(supabase.storage.from(LOGO_BUCKET).upload(path, blob, { contentType: 'image/jpeg' }));
+    await run(supabase.auth.updateUser({ data: { avatar_path: path } }));
+    if (avatarPath) await supabase.storage.from(LOGO_BUCKET).remove([avatarPath]);
+  };
+
+  const removeAvatar = async () => {
+    if (!avatarPath) return;
+    await run(supabase.auth.updateUser({ data: { avatar_path: null } }));
+    await supabase.storage.from(LOGO_BUCKET).remove([avatarPath]);
+  };
+
   const removeLogo = async () => {
     if (!logoPath) return;
     await run(supabase.auth.updateUser({ data: { logo_path: null } }));
@@ -84,6 +111,9 @@ export function AuthProvider({ children }) {
     user,
     name,
     logoUrl,
+    avatarUrl,
+    uploadAvatar,
+    removeAvatar,
     // Who invoices are from: shown on the invoice sheet and PDF.
     firstName,
     lastName,

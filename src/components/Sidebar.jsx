@@ -32,12 +32,12 @@ const initialsOf = (name) =>
     .join('');
 
 export default function Sidebar() {
-  const { name, signOut } = useAuth();
+  const { name, avatarUrl, signOut } = useAuth();
 
   return (
     <aside className="sidebar no-print">
       <div className="sidebar__avatar" aria-hidden="true">
-        {initialsOf(name)}
+        {avatarUrl ? <img src={avatarUrl} alt="" /> : initialsOf(name)}
       </div>
       <div className="sidebar__name">{name}</div>
 
