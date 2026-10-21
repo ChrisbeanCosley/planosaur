@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Image, KeyRound, Mail, UserRound } from 'lucide-react';
+import { Building, KeyRound, Mail, UserRound } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import './Settings.css';
 
@@ -11,7 +11,7 @@ export default function Settings() {
       <h1 className="page-title">Settings</h1>
       <div className="settings__sections">
         <ProfileSection />
-        <LogoSection />
+        <CompanySection />
         <PasswordSection />
       </div>
     </div>
@@ -28,18 +28,21 @@ function Message({ message }) {
 }
 
 function ProfileSection() {
-  const { user, name, updateName } = useAuth();
-  const [fullName, setFullName] = useState(name);
+  const { user, firstName, lastName, updateName } = useAuth();
+  const [form, setForm] = useState({ first: firstName, last: lastName });
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState(null);
-  const changed = fullName.trim() && fullName.trim() !== name;
+  const first = form.first.trim();
+  const last = form.last.trim();
+  const changed = first && (first !== firstName || last !== lastName);
+  const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
   const save = async (e) => {
     e.preventDefault();
     setBusy(true);
     setMessage(null);
     try {
-      await updateName(fullName.trim());
+      await updateName(first, last);
       setMessage({ tone: 'success', text: 'Profile saved.' });
     } catch (err) {
       setMessage({ tone: 'error', text: err.message });
@@ -54,10 +57,16 @@ function ProfileSection() {
         <UserRound size={17} strokeWidth={1.8} /> Profile
       </h2>
       <form onSubmit={save} className="settings__form">
-        <label className="form-row">
-          <span>Name</span>
-          <input className="field" value={fullName} onChange={(e) => setFullName(e.target.value)} required autoComplete="name" />
-        </label>
+        <div className="form-row-group">
+          <label className="form-row">
+            <span>First name</span>
+            <input className="field" value={form.first} onChange={set('first')} required autoComplete="given-name" />
+          </label>
+          <label className="form-row">
+            <span>Surname</span>
+            <input className="field" value={form.last} onChange={set('last')} autoComplete="family-name" />
+          </label>
+        </div>
         <label className="form-row">
           <span>Email</span>
           <input className="field" value={user?.email ?? ''} disabled />
@@ -73,12 +82,14 @@ function ProfileSection() {
   );
 }
 
-// Company logo shown at the top of invoices.
-function LogoSection() {
-  const { logoUrl, uploadLogo, removeLogo } = useAuth();
+// Company name and logo, both shown at the top of invoices.
+function CompanySection() {
+  const { companyName, updateCompanyName, logoUrl, uploadLogo, removeLogo } = useAuth();
+  const [company, setCompany] = useState(companyName);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState(null);
   const fileInput = useRef(null);
+  const changed = company.trim() !== companyName;
 
   const run = async (action, success) => {
     setBusy(true);
@@ -91,6 +102,15 @@ function LogoSection() {
     } finally {
       setBusy(false);
     }
+  };
+
+  const saveName = (e) => {
+    e.preventDefault();
+    const trimmed = company.trim();
+    run(
+      () => updateCompanyName(trimmed),
+      trimmed ? 'Company name saved. It now appears on your invoices.' : 'Company name removed from invoices.',
+    );
   };
 
   const onFile = (e) => {
@@ -107,13 +127,32 @@ function LogoSection() {
   return (
     <section className="card settings__card">
       <h2 className="settings__heading">
-        <Image size={17} strokeWidth={1.8} /> Company logo
+        <Building size={17} strokeWidth={1.8} /> Company
       </h2>
-      <div className="settings__form">
+      <form onSubmit={saveName} className="settings__form">
+        <label className="form-row">
+          <span>Company name (optional)</span>
+          <div className="settings__inline">
+            <input
+              className="field"
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+              placeholder="e.g. Planosaur Studio (Pty) Ltd"
+              autoComplete="organization"
+            />
+            <button type="submit" className="btn" disabled={busy || !changed}>
+              Save
+            </button>
+          </div>
+        </label>
+      </form>
+
+      <div className="settings__form settings__logo-block">
+        <span className="settings__label">Logo</span>
         <div className="settings__logo">
           {logoUrl ? <img src={logoUrl} alt="Company logo" /> : <span>No logo yet</span>}
         </div>
-        <p className="settings__hint">Shown at the top of your invoices. PNG or JPG, up to 2 MB.</p>
+        <p className="settings__hint">Your company name and logo appear at the top of your invoices. PNG or JPG, up to 2 MB.</p>
         <Message message={message} />
         <input
           ref={fileInput}

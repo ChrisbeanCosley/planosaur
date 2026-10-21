@@ -54,6 +54,27 @@
   object-fit: contain;
 }
 
+/* Input with its Save button on one line */
+.settings__inline {
+  display: flex;
+  gap: 8px;
+}
+
+.settings__inline .field {
+  flex: 1;
+}
+
+.settings__logo-block {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #f1ecf2;
+}
+
+.settings__label {
+  font-size: 9.5px;
+  font-weight: 500;
+}
+
 .settings__code {
   letter-spacing: 4px;
   font-size: 14px;

@@ -20,8 +20,14 @@ export function AuthProvider({ children }) {
   }, []);
 
   const user = session?.user ?? null;
-  const name = user?.user_metadata?.full_name || user?.email?.split('@')[0] || '';
-  const logoPath = user?.user_metadata?.logo_path ?? null;
+  const meta = user?.user_metadata ?? {};
+  // Accounts from before first/last name existed only have full_name: split it as a starting point.
+  const [splitFirst = '', ...splitRest] = (meta.full_name ?? '').trim().split(/\s+/);
+  const firstName = meta.first_name ?? splitFirst;
+  const lastName = meta.last_name ?? splitRest.join(' ');
+  const name = meta.full_name || [firstName, lastName].filter(Boolean).join(' ') || user?.email?.split('@')[0] || '';
+  const companyName = meta.company_name ?? '';
+  const logoPath = meta.logo_path ?? null;
 
   // The logos bucket is private, so the logo is shown through a short-lived signed URL,
   // refreshed before it expires.
@@ -73,11 +79,21 @@ export function AuthProvider({ children }) {
     name,
     logoUrl,
     // Who invoices are from: shown on the invoice sheet and PDF.
-    sender: { name, email: user?.email, logoUrl },
+    firstName,
+    lastName,
+    companyName,
+    sender: { name, company: companyName, email: user?.email, logoUrl },
     uploadLogo,
     removeLogo,
     signOut: () => supabase.auth.signOut(),
-    updateName: (fullName) => run(supabase.auth.updateUser({ data: { full_name: fullName } })),
+    // full_name is kept in step so the sidebar, sign-up and invoices all read one value.
+    updateName: (first, last) =>
+      run(
+        supabase.auth.updateUser({
+          data: { first_name: first, last_name: last, full_name: [first, last].filter(Boolean).join(' ') },
+        }),
+      ),
+    updateCompanyName: (company) => run(supabase.auth.updateUser({ data: { company_name: company } })),
     // Emails the user a one-time code that proves it's really them.
     sendPasswordCode: () => run(supabase.auth.reauthenticate()),
     // Changes the password; Supabase rejects it unless the emailed code (nonce) is valid.

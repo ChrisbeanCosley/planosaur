@@ -76,6 +76,11 @@
   object-fit: contain;
 }
 
+.sheet__person {
+  margin-bottom: 0.15em;
+  color: var(--ink);
+}
+
 .sheet__from strong {
   margin-bottom: 0.25em;
   font-size: 1.3em;

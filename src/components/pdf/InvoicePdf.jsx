@@ -18,6 +18,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 26, fontFamily: 'Helvetica-Bold', color: PURPLE, letterSpacing: 2 },
   number: { marginTop: 4, fontSize: 11, color: MUTED },
   fromBlock: { alignItems: 'flex-end', maxWidth: 220 },
+  person: { marginBottom: 2 },
   logo: { maxWidth: 180, maxHeight: 60, marginBottom: 8, objectFit: 'contain' },
   fromName: { fontSize: 13, fontFamily: 'Helvetica-Bold', marginBottom: 3 },
   muted: { color: MUTED },
@@ -88,7 +89,7 @@ export default function InvoicePdf({ invoice, from }) {
   const stampColor = STAMP_COLORS[status.tone];
 
   return (
-    <Document title={`${invoice.number} - ${invoice.client}`} author={from.name} creator="Planosaur">
+    <Document title={`${invoice.number} - ${invoice.client}`} author={from.company || from.name} creator="Planosaur">
       <Page size="A4" style={styles.page}>
         <View style={styles.accent} fixed />
 
@@ -99,7 +100,9 @@ export default function InvoicePdf({ invoice, from }) {
           </View>
           <View style={styles.fromBlock}>
             {from.logoUrl && <Image style={styles.logo} src={from.logoUrl} />}
-            <Text style={styles.fromName}>{from.name}</Text>
+            {/* With a company name, that leads and the person's name sits under it. */}
+            <Text style={styles.fromName}>{from.company || from.name}</Text>
+            {from.company && from.name && <Text style={styles.person}>{from.name}</Text>}
             {from.email && <Text style={styles.muted}>{from.email}</Text>}
           </View>
         </View>

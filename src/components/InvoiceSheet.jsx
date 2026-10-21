@@ -37,7 +37,9 @@ export default function InvoiceSheet({ invoice, from }) {
           </div>
           <div className="sheet__from">
             {from.logoUrl && <img className="sheet__logo" src={from.logoUrl} alt="" />}
-            <strong>{from.name}</strong>
+            {/* With a company name, that leads and the person's name sits under it. */}
+            <strong>{from.company || from.name}</strong>
+            {from.company && from.name && <span className="sheet__person">{from.name}</span>}
             {from.email && <span>{from.email}</span>}
           </div>
         </header>
