@@ -1,7 +1,8 @@
 // The invoice drawn on the page as a paper sheet. It mirrors the PDF in
 // components/pdf/InvoicePdf.jsx, so keep the two in step when changing the layout.
 import { formatLongDate, fromKey } from '../utils/date';
-import { invoiceStatus, invoiceTotals, lineAmount, taxLabel, termsLabel } from '../utils/invoices';
+import { invoiceStatus, invoiceTotals, lineAmount, termsLabel } from '../utils/invoices';
+import { formatVatRate } from '../utils/vat';
 import { formatMoney } from '../utils/money';
 import './InvoiceSheet.css';
 
@@ -24,6 +25,12 @@ export default function InvoiceSheet({ invoice, from }) {
   const status = invoiceStatus(invoice);
   const isEstimate = invoice.type === 'estimate';
   const balanceDue = invoice.status === 'paid' ? 0 : totals.total;
+  // VAT-registered businesses issue "tax invoices" (a SARS requirement).
+  const title = isEstimate ? 'ESTIMATE' : from.vatRegistered ? 'TAX INVOICE' : 'INVOICE';
+  const vatAfterDiscount = totals.vatRate !== null;
+  // Always show a VAT line (0% when there is none); older per-line tax shows as "Tax" before the discount.
+  const legacyTax = !vatAfterDiscount && totals.tax > 0;
+  const vatLabel = vatAfterDiscount ? `VAT (${formatVatRate(totals.vatRate)})` : legacyTax ? 'Tax' : 'VAT (0%)';
 
   return (
     <div className="sheet-frame">
@@ -32,7 +39,7 @@ export default function InvoiceSheet({ invoice, from }) {
 
         <header className="sheet__header">
           <div>
-            <h2 className="sheet__title">{isEstimate ? 'ESTIMATE' : 'INVOICE'}</h2>
+            <h2 className="sheet__title">{title}</h2>
             <div className="sheet__number">{invoice.number}</div>
           </div>
           <div className="sheet__from">
@@ -41,6 +48,7 @@ export default function InvoiceSheet({ invoice, from }) {
             <strong>{from.company || from.name}</strong>
             {from.company && from.name && <span className="sheet__person">{from.name}</span>}
             {from.email && <span>{from.email}</span>}
+            {from.vatNumber && <span>VAT no. {from.vatNumber}</span>}
           </div>
         </header>
 
@@ -70,7 +78,6 @@ export default function InvoiceSheet({ invoice, from }) {
               <th>ITEM</th>
               <th>QTY</th>
               <th>RATE</th>
-              <th>TAX</th>
               <th>AMOUNT</th>
             </tr>
           </thead>
@@ -80,7 +87,6 @@ export default function InvoiceSheet({ invoice, from }) {
                 <td>{item.description || '—'}</td>
                 <td>{Number(item.quantity) || 0}</td>
                 <td>{formatMoney(item.rate)}</td>
-                <td>{taxLabel(item.taxRate)}</td>
                 <td>{formatMoney(lineAmount(item))}</td>
               </tr>
             ))}
@@ -92,9 +98,9 @@ export default function InvoiceSheet({ invoice, from }) {
             <span>Sub total</span>
             <span>{formatMoney(totals.subTotal)}</span>
           </div>
-          {totals.tax > 0 && (
+          {legacyTax && (
             <div>
-              <span>Tax</span>
+              <span>{vatLabel}</span>
               <span>{formatMoney(totals.tax)}</span>
             </div>
           )}
@@ -102,6 +108,12 @@ export default function InvoiceSheet({ invoice, from }) {
             <div>
               <span>Discount</span>
               <span>-{formatMoney(totals.discount)}</span>
+            </div>
+          )}
+          {!legacyTax && (
+            <div>
+              <span>{vatLabel}</span>
+              <span>{formatMoney(totals.tax)}</span>
             </div>
           )}
           <div className="sheet__grand-total">

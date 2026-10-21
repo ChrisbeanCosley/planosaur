@@ -78,3 +78,15 @@
   font-size: 9.5px;
   color: var(--primary);
 }
+
+/* Company / VAT questions on sign-up, set apart from the account fields */
+.login__company {
+  padding-top: 12px;
+  border-top: 1px solid #f1ecf2;
+}
+
+/* The sign-up form is longer now: let the card scroll on short screens */
+.login__card {
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+}

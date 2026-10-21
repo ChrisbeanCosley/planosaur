@@ -2,7 +2,8 @@
 // Sizes are in PDF points (1pt = 1/72 inch), independent of the app's screen scale.
 import { Document, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import { formatLongDate, fromKey } from '../../utils/date';
-import { invoiceStatus, invoiceTotals, lineAmount, taxLabel, termsLabel } from '../../utils/invoices';
+import { invoiceStatus, invoiceTotals, lineAmount, termsLabel } from '../../utils/invoices';
+import { formatVatRate } from '../../utils/vat';
 import { formatMoney } from '../../utils/money';
 
 const PURPLE = '#8e4498';
@@ -35,7 +36,6 @@ const styles = StyleSheet.create({
   colItem: { flex: 1, paddingLeft: 8, paddingRight: 8 },
   colQty: { width: 50, textAlign: 'right' },
   colRate: { width: 80, textAlign: 'right' },
-  colTax: { width: 60, textAlign: 'right' },
   colAmount: { width: 90, textAlign: 'right', paddingRight: 8 },
   totals: { alignSelf: 'flex-end', width: 230, marginTop: 18 },
   totalRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 4 },
@@ -87,6 +87,18 @@ export default function InvoicePdf({ invoice, from }) {
   const isEstimate = invoice.type === 'estimate';
   const balanceDue = invoice.status === 'paid' ? 0 : totals.total;
   const stampColor = STAMP_COLORS[status.tone];
+  // Keep in step with InvoiceSheet: tax-invoice title, and VAT after discount for invoice-level VAT.
+  const title = isEstimate ? 'ESTIMATE' : from.vatRegistered ? 'TAX INVOICE' : 'INVOICE';
+  const vatAfterDiscount = totals.vatRate !== null;
+  // Always show a VAT line (0% when there is none); older per-line tax shows as "Tax" before the discount.
+  const legacyTax = !vatAfterDiscount && totals.tax > 0;
+  const vatLabel = vatAfterDiscount ? `VAT (${formatVatRate(totals.vatRate)})` : legacyTax ? 'Tax' : 'VAT (0%)';
+  const vatRow = (
+    <View style={styles.totalRow}>
+      <Text style={styles.muted}>{vatLabel}</Text>
+      <Text>{formatMoney(totals.tax)}</Text>
+    </View>
+  );
 
   return (
     <Document title={`${invoice.number} - ${invoice.client}`} author={from.company || from.name} creator="Planosaur">
@@ -95,7 +107,7 @@ export default function InvoicePdf({ invoice, from }) {
 
         <View style={styles.header}>
           <View>
-            <Text style={styles.title}>{isEstimate ? 'ESTIMATE' : 'INVOICE'}</Text>
+            <Text style={styles.title}>{title}</Text>
             <Text style={styles.number}>{invoice.number}</Text>
           </View>
           <View style={styles.fromBlock}>
@@ -104,6 +116,7 @@ export default function InvoicePdf({ invoice, from }) {
             <Text style={styles.fromName}>{from.company || from.name}</Text>
             {from.company && from.name && <Text style={styles.person}>{from.name}</Text>}
             {from.email && <Text style={styles.muted}>{from.email}</Text>}
+            {from.vatNumber && <Text style={styles.muted}>VAT no. {from.vatNumber}</Text>}
           </View>
         </View>
 
@@ -130,7 +143,6 @@ export default function InvoicePdf({ invoice, from }) {
             <Text style={[styles.th, styles.colItem]}>ITEM</Text>
             <Text style={[styles.th, styles.colQty]}>QTY</Text>
             <Text style={[styles.th, styles.colRate]}>RATE</Text>
-            <Text style={[styles.th, styles.colTax]}>TAX</Text>
             <Text style={[styles.th, styles.colAmount]}>AMOUNT</Text>
           </View>
           {invoice.items.map((item) => (
@@ -138,7 +150,6 @@ export default function InvoicePdf({ invoice, from }) {
               <Text style={styles.colItem}>{item.description || '—'}</Text>
               <Text style={styles.colQty}>{Number(item.quantity) || 0}</Text>
               <Text style={styles.colRate}>{formatMoney(item.rate)}</Text>
-              <Text style={styles.colTax}>{taxLabel(item.taxRate)}</Text>
               <Text style={styles.colAmount}>{formatMoney(lineAmount(item))}</Text>
             </View>
           ))}
@@ -149,18 +160,14 @@ export default function InvoicePdf({ invoice, from }) {
             <Text style={styles.muted}>Sub total</Text>
             <Text>{formatMoney(totals.subTotal)}</Text>
           </View>
-          {totals.tax > 0 && (
-            <View style={styles.totalRow}>
-              <Text style={styles.muted}>Tax</Text>
-              <Text>{formatMoney(totals.tax)}</Text>
-            </View>
-          )}
+          {legacyTax && vatRow}
           {totals.discount > 0 && (
             <View style={styles.totalRow}>
               <Text style={styles.muted}>Discount</Text>
               <Text>-{formatMoney(totals.discount)}</Text>
             </View>
           )}
+          {!legacyTax && vatRow}
           <View style={styles.grandTotal}>
             <Text>Total</Text>
             <Text>{formatMoney(totals.total)}</Text>

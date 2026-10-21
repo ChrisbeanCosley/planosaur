@@ -26,7 +26,13 @@ export function AuthProvider({ children }) {
   const firstName = meta.first_name ?? splitFirst;
   const lastName = meta.last_name ?? splitRest.join(' ');
   const name = meta.full_name || [firstName, lastName].filter(Boolean).join(' ') || user?.email?.split('@')[0] || '';
+  // Company and VAT details (set at sign-up or in Settings). Older accounts that only saved a
+  // company name count as having a company.
   const companyName = meta.company_name ?? '';
+  const hasCompany = meta.has_company ?? Boolean(companyName);
+  const vatRegistered = hasCompany && Boolean(meta.vat_registered);
+  const vatRate = vatRegistered ? (meta.vat_rate ?? null) : null; // number, 'variable', or null
+  const vatNumber = vatRegistered ? (meta.vat_number ?? '') : '';
   const logoPath = meta.logo_path ?? null;
 
   // The logos bucket is private, so the logo is shown through a short-lived signed URL,
@@ -82,7 +88,11 @@ export function AuthProvider({ children }) {
     firstName,
     lastName,
     companyName,
-    sender: { name, company: companyName, email: user?.email, logoUrl },
+    hasCompany,
+    vatRegistered,
+    vatRate,
+    vatNumber,
+    sender: { name, company: hasCompany ? companyName : '', email: user?.email, logoUrl, vatRegistered, vatNumber },
     uploadLogo,
     removeLogo,
     signOut: () => supabase.auth.signOut(),
@@ -93,7 +103,19 @@ export function AuthProvider({ children }) {
           data: { first_name: first, last_name: last, full_name: [first, last].filter(Boolean).join(' ') },
         }),
       ),
-    updateCompanyName: (company) => run(supabase.auth.updateUser({ data: { company_name: company } })),
+    // Saves the company and VAT answers together; VAT fields are cleared when they no longer apply.
+    updateCompany: ({ hasCompany: has, companyName: company, vatRegistered: registered, vatRate: rate, vatNumber: number }) =>
+      run(
+        supabase.auth.updateUser({
+          data: {
+            has_company: has,
+            company_name: has ? company : '',
+            vat_registered: has && registered,
+            vat_rate: has && registered ? rate : null,
+            vat_number: has && registered ? number : '',
+          },
+        }),
+      ),
     // Emails the user a one-time code that proves it's really them.
     sendPasswordCode: () => run(supabase.auth.reauthenticate()),
     // Changes the password; Supabase rejects it unless the emailed code (nonce) is valid.

@@ -205,3 +205,31 @@
     padding: 16px 21.5px;
   }
 }
+
+/* VAT line in the totals: label + rate dropdown (+ custom % box) */
+.vat-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vat-picker select,
+.vat-picker input {
+  height: 26px;
+  padding: 0 8px;
+  border: 1px solid #ddd5de;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.vat-picker input {
+  width: 60px;
+}
+
+.totals > div .vat-picker,
+.totals > div .vat-picker select {
+  color: var(--text);
+}

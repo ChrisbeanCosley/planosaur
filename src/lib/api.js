@@ -65,6 +65,8 @@ const invoiceFromRow = (r) => ({
   terms: r.terms ?? '',
   subject: r.subject ?? '',
   discount: Number(r.discount),
+  // Invoice-level VAT rate (migration 0008); null = none, or an older per-line-tax invoice.
+  vatRate: r.vat_rate === null || r.vat_rate === undefined ? null : Number(r.vat_rate),
   status: r.status,
   type: r.type,
   archived: r.archived,
@@ -91,6 +93,8 @@ const invoiceToRow = (inv, clientId) => ({
   terms: orNull(inv.terms),
   subject: orNull(inv.subject),
   discount: Number(inv.discount) || 0,
+  // Only sent when set, so saving still works before migration 0008 is run.
+  ...(inv.vatRate === null || inv.vatRate === undefined || inv.vatRate === '' ? {} : { vat_rate: Number(inv.vatRate) }),
   status: inv.status,
   type: inv.type,
   archived: Boolean(inv.archived),

@@ -5,14 +5,15 @@ import { useAppData } from '../context/AppDataContext';
 import { useAuth } from '../context/AuthContext';
 import { newId } from '../data/seed';
 import { addDays, fromKey, todayKey, toKey } from '../utils/date';
-import { invoiceTotals, nextInvoiceNumber, TAX_OPTIONS, TERMS_OPTIONS } from '../utils/invoices';
+import { invoiceTotals, lineAmount, nextInvoiceNumber, TERMS_OPTIONS, withInvoiceVat } from '../utils/invoices';
+import { defaultInvoiceVat, formatVatRate, percentToRate, vatOptions } from '../utils/vat';
 import { formatNumber } from '../utils/money';
 import './InvoiceEditor.css';
 
 const blankItem = () => ({ id: newId(), description: '', quantity: 1, rate: 0, taxRate: 0 });
 
 // fromTime (router state from Time Tracking) prefills the client and one line per time entry.
-function blankInvoice(invoices, fromTime) {
+function blankInvoice(invoices, fromTime, vatRate) {
   const invoice = {
     id: newId(),
     number: nextInvoiceNumber(invoices),
@@ -29,6 +30,7 @@ function blankInvoice(invoices, fromTime) {
     type: 'invoice',
     archived: false,
     recurring: false,
+    vatRate, // null = no VAT, '' = still to choose (variable rate), or a rate
   };
   return fromTime ? { ...invoice, client: fromTime.client, items: fromTime.items } : invoice;
 }
@@ -40,10 +42,13 @@ export default function InvoiceEditor() {
   const navigate = useNavigate();
   const location = useLocation();
   const fromTime = id ? null : location.state?.fromTime; // { client, items, timeEntryIds }
-  const [invoice, setInvoice] = useState(() => existing ?? blankInvoice(invoices, fromTime));
+  const { sender, vatRegistered, vatRate: profileVatRate } = useAuth();
+  // Older per-line-tax invoices switch to a single VAT line when opened for editing.
+  const [invoice, setInvoice] = useState(() =>
+    existing ? withInvoiceVat(existing) : blankInvoice(invoices, fromTime, defaultInvoiceVat({ vatRegistered, vatRate: profileVatRate })),
+  );
   const [error, setError] = useState('');
   const [downloading, setDownloading] = useState(false);
-  const { sender } = useAuth();
 
   if (id && !existing) return <Navigate to="/invoices" replace />;
 
@@ -72,6 +77,7 @@ export default function InvoiceEditor() {
   const save = () => {
     if (!invoice.client.trim()) return setError('Please select a customer.');
     if (!invoice.items.some((i) => i.description.trim())) return setError('Add at least one item.');
+    if (invoice.vatRate === '') return setError('Choose a VAT rate for this invoice.');
     saveInvoice(
       { ...invoice, client: invoice.client.trim(), dueDate: invoice.dueDate || invoice.date },
       { timeEntryIds: fromTime?.timeEntryIds },
@@ -193,13 +199,12 @@ export default function InvoiceEditor() {
             <th>Item Details</th>
             <th>Quantity</th>
             <th>Rate</th>
-            <th>Tax</th>
             <th>Amount</th>
           </tr>
         </thead>
         <tbody>
           {invoice.items.map((item) => {
-            const amount = (Number(item.quantity) || 0) * (Number(item.rate) || 0) * (1 + Number(item.taxRate));
+            const amount = lineAmount(item);
             return (
               <tr key={item.id}>
                 <td>
@@ -233,19 +238,6 @@ export default function InvoiceEditor() {
                     aria-label="Rate"
                   />
                 </td>
-                <td>
-                  <select
-                    value={item.taxRate}
-                    onChange={(e) => setItem(item.id, 'taxRate', Number(e.target.value))}
-                    aria-label="Tax"
-                  >
-                    {TAX_OPTIONS.map((t) => (
-                      <option key={t.value} value={t.value}>
-                        {t.value === 0 && !item.taxRate ? 'Select a Tax' : t.label}
-                      </option>
-                    ))}
-                  </select>
-                </td>
                 <td className="items-table__amount">
                   {formatNumber(amount)}
                   {invoice.items.length > 1 && (
@@ -275,12 +267,6 @@ export default function InvoiceEditor() {
             <span>Sub Total</span>
             <span>{formatNumber(totals.subTotal)}</span>
           </div>
-          {totals.tax > 0 && (
-            <div>
-              <span>Tax</span>
-              <span>{formatNumber(totals.tax)}</span>
-            </div>
-          )}
           <div>
             <span>Discount</span>
             <input
@@ -292,6 +278,18 @@ export default function InvoiceEditor() {
               aria-label="Discount"
             />
           </div>
+          {/* Always shown: businesses that aren't VAT registered default to No VAT (R0.00). */}
+          <div>
+            <VatPicker
+              value={invoice.vatRate}
+              profileRate={profileVatRate}
+              onChange={(vatRate) => {
+                setError('');
+                setInvoice((inv) => ({ ...inv, vatRate }));
+              }}
+            />
+            <span>{formatNumber(totals.tax)}</span>
+          </div>
           <div className="totals__total">
             <span>Total</span>
             <span>{formatNumber(totals.total)}</span>
@@ -299,5 +297,55 @@ export default function InvoiceEditor() {
         </section>
       </div>
     </div>
+  );
+}
+
+// The VAT line's rate picker: preset rates, another rate, or no VAT.
+// value: a rate, null (no VAT) or '' (not chosen yet).
+function VatPicker({ value, profileRate, onChange }) {
+  const options = vatOptions(profileRate);
+  const isPreset = typeof value === 'number' && options.some((o) => o.value === value);
+  const [other, setOther] = useState(typeof value === 'number' && !isPreset ? formatVatRate(value).replace('%', '') : '');
+  const [choosingOther, setChoosingOther] = useState(typeof value === 'number' && !isPreset);
+  const selected = choosingOther ? 'other' : value === null ? 'none' : value === '' ? '' : String(value);
+
+  const pick = (e) => {
+    const v = e.target.value;
+    setChoosingOther(v === 'other');
+    if (v === 'other') onChange(percentToRate(other) ?? '');
+    else if (v === 'none') onChange(null);
+    else if (v === '') onChange('');
+    else onChange(Number(v));
+  };
+
+  return (
+    <span className="vat-picker">
+      VAT
+      <select value={selected} onChange={pick} aria-label="VAT rate">
+        {selected === '' && <option value="">Choose rate…</option>}
+        {options.map((o) => (
+          <option key={o.value} value={String(o.value)}>
+            {o.label}
+          </option>
+        ))}
+        <option value="other">Another rate…</option>
+        <option value="none">No VAT</option>
+      </select>
+      {choosingOther && (
+        <input
+          type="number"
+          min="0"
+          max="100"
+          step="0.01"
+          value={other}
+          placeholder="%"
+          aria-label="VAT rate (%)"
+          onChange={(e) => {
+            setOther(e.target.value);
+            onChange(percentToRate(e.target.value) ?? '');
+          }}
+        />
+      )}
+    </span>
   );
 }

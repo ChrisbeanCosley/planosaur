@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Building, KeyRound, Mail, UserRound } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import CompanyVatFields, { companyFormFromProfile, companyFormToProfile } from '../components/CompanyVatFields';
 import './Settings.css';
 
 const RESEND_SECONDS = 60; // Supabase only allows one code email per minute
@@ -82,14 +83,16 @@ function ProfileSection() {
   );
 }
 
-// Company name and logo, both shown at the top of invoices.
+// Company, VAT and logo: all shown on invoices.
 function CompanySection() {
-  const { companyName, updateCompanyName, logoUrl, uploadLogo, removeLogo } = useAuth();
-  const [company, setCompany] = useState(companyName);
+  const auth = useAuth();
+  const { logoUrl, uploadLogo, removeLogo, updateCompany } = auth;
+  const saved = companyFormFromProfile(auth);
+  const [company, setCompany] = useState(saved);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState(null);
   const fileInput = useRef(null);
-  const changed = company.trim() !== companyName;
+  const changed = JSON.stringify(company) !== JSON.stringify(saved);
 
   const run = async (action, success) => {
     setBusy(true);
@@ -104,13 +107,14 @@ function CompanySection() {
     }
   };
 
-  const saveName = (e) => {
+  const saveCompany = (e) => {
     e.preventDefault();
-    const trimmed = company.trim();
-    run(
-      () => updateCompanyName(trimmed),
-      trimmed ? 'Company name saved. It now appears on your invoices.' : 'Company name removed from invoices.',
-    );
+    const { profile, error } = companyFormToProfile(company);
+    if (error) {
+      setMessage({ tone: 'error', text: error });
+      return;
+    }
+    run(() => updateCompany(profile), 'Company details saved. They now appear on your invoices.');
   };
 
   const onFile = (e) => {
@@ -129,22 +133,13 @@ function CompanySection() {
       <h2 className="settings__heading">
         <Building size={17} strokeWidth={1.8} /> Company
       </h2>
-      <form onSubmit={saveName} className="settings__form">
-        <label className="form-row">
-          <span>Company name (optional)</span>
-          <div className="settings__inline">
-            <input
-              className="field"
-              value={company}
-              onChange={(e) => setCompany(e.target.value)}
-              placeholder="e.g. Planosaur Studio (Pty) Ltd"
-              autoComplete="organization"
-            />
-            <button type="submit" className="btn" disabled={busy || !changed}>
-              Save
-            </button>
-          </div>
-        </label>
+      <form onSubmit={saveCompany} className="settings__form">
+        <CompanyVatFields value={company} onChange={setCompany} disabled={busy} />
+        <div className="settings__actions">
+          <button type="submit" className="btn" disabled={busy || !changed}>
+            {busy ? 'Saving…' : 'Save company details'}
+          </button>
+        </div>
       </form>
 
       <div className="settings__form settings__logo-block">

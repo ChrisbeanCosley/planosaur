@@ -1,0 +1,20 @@
+.company-vat {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.yes-no {
+  align-self: flex-start;
+}
+
+.yes-no button {
+  min-width: 56px;
+}
+
+.company-vat__hint {
+  margin-top: -4px;
+  font-size: 9.5px;
+  line-height: 1.4;
+  color: #8a8a8a;
+}

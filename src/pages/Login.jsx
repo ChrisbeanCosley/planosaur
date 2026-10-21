@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
+import CompanyVatFields, { companyFormToProfile, emptyCompanyForm } from '../components/CompanyVatFields';
 import logo from '../assets/logo.png';
 import './Login.css';
 
 export default function Login() {
   const [mode, setMode] = useState('signin'); // 'signin' | 'signup' | 'reset'
   const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '' });
+  const [company, setCompany] = useState(emptyCompanyForm);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState(null); // { tone: 'error' | 'info', text }
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
@@ -24,6 +26,8 @@ export default function Login() {
         const { error } = await supabase.auth.signInWithPassword({ email: form.email, password: form.password });
         if (error) throw error;
       } else if (mode === 'signup') {
+        const { profile, error: companyError } = companyFormToProfile(company);
+        if (companyError) throw new Error(companyError);
         const { data, error } = await supabase.auth.signUp({
           email: form.email,
           password: form.password,
@@ -33,6 +37,12 @@ export default function Login() {
               first_name: form.firstName.trim(),
               last_name: form.lastName.trim(),
               full_name: `${form.firstName.trim()} ${form.lastName.trim()}`.trim(),
+              // Same keys AuthContext.updateCompany writes.
+              has_company: profile.hasCompany,
+              company_name: profile.companyName,
+              vat_registered: profile.vatRegistered,
+              vat_rate: profile.vatRate,
+              vat_number: profile.vatNumber,
             },
             emailRedirectTo: window.location.origin,
           },
@@ -95,6 +105,12 @@ export default function Login() {
                 autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
               />
             </label>
+          )}
+
+          {mode === 'signup' && (
+            <div className="login__company">
+              <CompanyVatFields value={company} onChange={setCompany} disabled={busy} />
+            </div>
           )}
 
           {message && <p className={`login__message login__message--${message.tone}`}>{message.text}</p>}
